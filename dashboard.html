@@ -1,0 +1,2508 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EXERCISE // RED vs BLUE // WARBOARD</title>
+<script src="/jspdf.umd.min.js" defer></script>
+<script src="/jspdf.plugin.autotable.min.js" defer></script>
+
+<style>
+:root{
+  --bg:#e9f2fc;
+  --bg2:#d7e9fa;
+  --panel:#ffffff;
+  --box:#e6e9fb;
+  --line:#c9dcf0;
+  --fg:#1f2a3d;
+  --muted:#6b7a90;
+  --blue:#2f6fe0;
+  --blue-dim:#8fabec;
+  --red:#e2554f;
+  --red-dim:#ef9d99;
+  --green:#22a06b;
+  --yellow:#dc9a1f;
+  --orange:#e08a3c;
+  --purple:#7c6fe0;
+  --pink:#d0699a;
+  --ctrlbox-bg:#dcedfb;
+  --ctrlbox-border:#3f6fb5;
+  --ctrlbox-text:#14335e;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:'Roboto',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;overflow-x:hidden}
+/* Arabic font fallback */
+html[dir="rtl"], html[dir="rtl"] body { font-family: 'Roboto', system-ui, sans-serif; }
+
+a{color:var(--blue)}
+header{
+  background:var(--panel) url('/exercise_banner.webp') center/cover no-repeat;
+  height:105px;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 22px;gap:12px;
+}
+.brand{
+  display:flex;align-items:center;gap:12px;font-family:'Roboto',sans-serif;
+  letter-spacing:0.06em;
+}
+.brand .sig{
+  width:11px;height:11px;background:var(--green);border-radius:50%;
+  animation:pulseSoft 1.8s infinite alternate;
+}
+.brand h1{font-size:17px;margin:0;font-weight:700}
+.brand h1 span{color:var(--purple)}
+
+.sys{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+}
+.badge{
+  border:1px solid var(--line);background:var(--bg2);
+  padding:7px 12px;border-radius:8px;font-size:13px;color:var(--muted);
+  display:flex;gap:6px;align-items:center;
+}
+.badge b{color:var(--fg)}
+.badge.db.ok{border-color:var(--green);color:var(--green)}
+.badge.db.bad{border-color:var(--red);color:var(--red)}
+.btn{
+  font-family:inherit;
+  border:1px solid var(--blue-dim);background:var(--panel);color:var(--fg);
+  padding:9px 14px;border-radius:8px;font-size:14px;cursor:pointer;
+  transition:0.15s;letter-spacing:0.03em;
+}
+.btn:hover{border-color:var(--blue);box-shadow:0 3px 8px rgba(47,111,224,0.18)}
+.btn.primary{background:var(--panel);color:var(--blue);font-weight:700;border-color:var(--blue)}
+.btn.primary:hover{box-shadow:0 3px 8px rgba(47,111,224,0.25)}
+.btn.blue{border-color:var(--blue);color:var(--blue)}
+.btn.blue:hover{box-shadow:0 3px 8px rgba(47,111,224,0.18)}
+.btn.red{border-color:var(--red);color:var(--red)}
+.btn.red:hover{box-shadow:0 3px 8px rgba(226,85,79,0.18)}
+main{position:relative;z-index:1;padding:14px;max-width:1950px;margin:0 auto}
+.controls{
+  display:flex;flex-wrap:wrap;align-items:stretch;gap:14px;margin-bottom:14px;
+}
+@media(max-width:900px){.controls{flex-direction:column;align-items:stretch}}
+
+.ctrl-box{
+  background:var(--ctrlbox-bg);
+  border:1px solid var(--ctrlbox-border);
+  border-radius:10px;
+  padding:6px 16px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+  color:var(--ctrlbox-text);
+  min-width:0;
+}
+.ctrl-box.exercise{flex:2.2 1 290px;}
+.ctrl-box.phase{flex:1.6 1 230px;}
+.ctrl-box.central{flex:1.8 1 270px;}
+.ctrl-box.reports{flex:1 1 170px;}
+.ctrl-box.settings{flex:1 1 140px;}
+
+.ctrl-box-btn{
+  font-family:inherit;
+  cursor:pointer;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-weight:800;
+  font-size:12px;
+  letter-spacing:0.06em;
+  transition:0.15s;
+}
+.ctrl-box-btn:hover{border-color:var(--blue);box-shadow:0 3px 8px rgba(47,111,224,0.18);}
+
+.ctrl-box-label{
+  font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--ctrlbox-text);white-space:nowrap;
+}
+.ctrl-box-row{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;}
+.ctrl-box.exercise select{flex:1 1 260px;min-width:0;width:100%;}
+.ctrl-box.central select{flex:1 1 260px;min-width:0;width:100%;}
+.ctrl-box .btn{padding:6px 12px;font-size:13px;white-space:nowrap;}
+.ctrl-box select{padding:8px 12px;}
+
+.btn:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
+.btn:disabled:hover{box-shadow:none;}
+
+.bell-btn{
+  background:none;border:none;padding:6px;margin:0;cursor:pointer;
+  color:var(--ctrlbox-text);flex:0 0 auto;display:flex;align-items:center;
+}
+.bell-btn:hover{color:var(--blue);}
+select{
+  background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="%236b7a90"/></svg>') no-repeat right 14px center;
+  border:1px solid var(--blue-dim);color:var(--fg);
+  -webkit-appearance:none;-moz-appearance:none;appearance:none;
+  padding:11px 30px 11px 14px;border-radius:8px;font-family:inherit;font-size:14px;min-width:280px;
+  transition:0.15s;cursor:pointer;
+}
+select:hover{border-color:var(--blue);box-shadow:0 3px 8px rgba(47,111,224,0.18)}
+.scoreboard{
+  display:grid;grid-template-columns:1fr 120px 1fr;gap:14px;margin-bottom:20px;
+}
+@media(max-width:900px){.scoreboard{grid-template-columns:1fr;}.vs{order:-1}}
+.team-card{
+  border:1px solid var(--line);border-radius:14px;padding:18px 6px;
+  background:var(--box);
+  position:relative;overflow:hidden;
+}
+.team-card.blue{border-left:3px solid var(--blue)}
+html[dir="rtl"] .team-card.blue{border-left:none; border-right:3px solid var(--blue);}
+.team-card.red{border-left:3px solid var(--red)}
+html[dir="rtl"] .team-card.red{border-left:none; border-right:3px solid var(--red);}
+.big{font-size:42px;font-weight:700;line-height:1}
+.big small{font-size:16px;color:var(--muted);font-weight:400}
+.vs{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1px dashed var(--line);border-radius:14px;background:var(--bg2);
+}
+.vs b{font-size:28px;color:var(--purple)}
+.vs span{font-size:13px;color:var(--muted);letter-spacing:0.16em}
+.grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;
+}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.column{
+  border:1px solid var(--line);border-radius:14px;background:var(--box);padding:14px;
+}
+.column h3{margin:0 0 10px 0;font-size:14px;letter-spacing:0.1em;display:flex;justify-content:space-between;align-items:center}
+
+.search-input{
+  background:var(--panel); border:1px solid var(--blue-dim); color:var(--fg);
+  border-radius:6px; padding:6px 10px; font-family:inherit; font-size:13px; width: 150px;
+  transition: 0.15s;
+}
+.search-input:hover{ border-color:var(--blue); box-shadow:0 3px 8px rgba(47,111,224,0.18); }
+.search-input:focus{ border-color:var(--blue); outline:none; box-shadow:0 3px 8px rgba(47,111,224,0.18); }
+.search-input.filter-select {
+  min-width: auto; width: auto; padding: 6px 24px 6px 8px;
+  -webkit-appearance:none;-moz-appearance:none;appearance:none;
+  background:var(--panel) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="9" height="5"><path d="M0 0l4.5 5 4.5-5z" fill="%236b7a90"/></svg>') no-repeat right 8px center;
+}
+
+.players {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-height: 620px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) var(--bg);
+}
+html[dir="rtl"] .players { padding-right: 0; padding-left: 4px; }
+
+.players::-webkit-scrollbar {
+  width: 7px;
+}
+.players::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-radius: 4px;
+}
+.players::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+.players::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+.pcard{
+  border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;
+  background:var(--panel);box-shadow:0 1px 2px rgba(31,42,61,0.05);
+  transition:0.15s;position:relative;overflow:hidden;
+}
+.pcard:hover{border-color:var(--muted);box-shadow:0 3px 8px rgba(31,42,61,0.1)}
+.pcard.blue{border-left:2px solid var(--blue)}
+html[dir="rtl"] .pcard.blue{border-left:none; border-right:2px solid var(--blue);}
+.pcard.red{border-left:2px solid var(--red)}
+html[dir="rtl"] .pcard.red{border-left:none; border-right:2px solid var(--red);}
+.pcard.oc{border-left:2px solid var(--purple)}
+html[dir="rtl"] .pcard.oc{border-left:none; border-right:2px solid var(--purple);}
+/* Offline (no GPS) = strongly dimmed, no HP-related marking.
+   Killed (no HP) = lighter dim + a diagonal X drawn across the card via
+   ::before/::after so it reads at a glance without being as muted as an
+   offline card. If a card is both, the stronger offline dim wins but the
+   X still shows.
+   NOTE: this uses filter:brightness() rather than opacity — on this light
+   theme, lowering opacity just fades a white card toward the pale page
+   background (reads as washed-out, not "darker"); brightness() actually
+   darkens the pixels, which is what makes offline clearly read as darker
+   than killed instead of the two looking almost the same. */
+.pcard.offline{filter:brightness(0.55) grayscale(0.85)}
+.pcard.killed{filter:brightness(0.9) grayscale(0.15);opacity:0.92}
+.pcard.offline.killed{filter:brightness(0.42) grayscale(0.9)}
+.pcard.killed::before,
+.pcard.killed::after{
+  content:'';position:absolute;top:50%;left:50%;
+  width:150%;height:2px;
+  background:rgba(31,42,61,0.55);
+  pointer-events:none;z-index:3;
+}
+.pcard.killed::before{transform:translate(-50%,-50%) rotate(45deg)}
+.pcard.killed::after{transform:translate(-50%,-50%) rotate(-45deg)}
+
+/* Card-flash on hit: received ramps orange -> red before settling back
+   (mirrors the eventual "killed" treatment); dealt is a single green pulse,
+   reusing the same green already used for "caused" rows in hit history. */
+@keyframes flashDamageReceived{
+  0%{background:var(--panel);box-shadow:none;}
+  35%{background:rgba(224,138,60,0.4);box-shadow:0 0 0 2px var(--orange) inset;}
+  70%{background:rgba(226,85,79,0.4);box-shadow:0 0 0 2px var(--red) inset;}
+  100%{background:var(--panel);box-shadow:none;}
+}
+@keyframes flashDamageDealt{
+  0%{background:var(--panel);box-shadow:none;}
+  45%{background:rgba(34,160,107,0.35);box-shadow:0 0 0 2px var(--green) inset;}
+  100%{background:var(--panel);box-shadow:none;}
+}
+.pcard.flash-damage-received{animation:flashDamageReceived 650ms ease-out;}
+.pcard.flash-damage-dealt{animation:flashDamageDealt 650ms ease-out;}
+
+.pcard.blue .id { color: var(--blue) !important; }
+.pcard.red .id { color: var(--red) !important; }
+.pcard.oc .id { color: var(--purple) !important; }
+
+.pcard .top{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted)}
+.pcard .id{font-weight:700;font-size:14px;display:flex;align-items:center}
+html[dir="rtl"] .pcard .id { flex-direction: row-reverse; }
+.ammo{font-size:10px;padding:2px 6px;border-radius:999px;background:var(--bg2);border:1px solid var(--line)}
+.ammo.low{color:var(--orange);border-color:var(--orange)}
+.ammo.empty{color:var(--red);border-color:var(--red)}
+.gps-word{font-weight:600;display:inline-flex;align-items:center}
+.gps-word.has{color:var(--green)}
+.gps-word.no{color:var(--red)}
+.gps-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px;background:currentColor;flex-shrink:0}
+html[dir="rtl"] .gps-dot{margin-right:0;margin-left:5px}
+.hbar{display:flex;gap:3px;margin-top:7px;width:91%}
+.hbar>i{flex:1;display:block;height:4px;border-radius:2px;background:var(--line);transition:background 0.3s ease}
+.hbar>i.hp-green{background:var(--green)}
+.hbar>i.hp-yellow{background:var(--yellow)}
+.hbar>i.hp-orange{background:var(--orange)}
+.hbar>i.hp-red{background:var(--red)}
+.hbar>i.hp-killed{background:var(--muted)}
+.status{font-size:11px;margin-top:6px;letter-spacing:0.05em;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.status-left{display:flex;align-items:center}
+.status.Ready{color:var(--green)} .status.Killed{color:var(--red)} .status.Wounded{color:var(--orange)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0}
+html[dir="rtl"] .dot { margin-right: 0; margin-left: 5px; }
+.dot.alive{background:var(--green)}
+.dot.dead{background:var(--red)}
+
+.modal-bg{
+  position:fixed;inset:0;background:rgba(58,53,39,0.45);
+  z-index:100;display:none;align-items:center;justify-content:center;padding:16px;
+}
+.modal-bg.open{display:flex}
+.modal{
+  width:100%;max-width:850px;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:0 12px 40px rgba(58,53,39,0.25);
+  animation:pop 0.2s ease;
+}
+.modal h3{margin:0 0 10px 0;font-family:'Roboto',sans-serif;letter-spacing:0.06em;font-size:18px}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:8px;font-size:15px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.kv b{color:var(--muted);font-weight:400}
+.kv span{color:var(--fg)}
+.health-big{height:16px;border-radius:6px;background:var(--line);margin-top:10px;overflow:hidden}
+.health-big>i{display:block;height:100%;border-radius:6px;transition:width 0.4s ease}
+
+.hit-row{display:grid;grid-template-columns:22px 70px 1fr 90px 130px;gap:8px;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.hit-row.hit-header{border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;letter-spacing:0.04em;padding-bottom:7px}
+.hit-row.hit-header span{font-weight:600}
+.hit-row:last-child{border-bottom:none}
+.hit-dir{font-weight:700;text-align:center}
+.hit-player{font-weight:600}
+.hit-time{color:var(--muted);font-family:'Roboto',sans-serif;white-space:nowrap;text-align:right}
+.hit-row.hit-caused .hit-dir,.hit-row.hit-caused .hit-player{color:var(--green)}
+.hit-row.hit-received .hit-dir,.hit-row.hit-received .hit-player{color:var(--red)}
+.hit-scroll{max-height:240px;overflow-y:auto}
+
+.weapons-box{margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.weapons-box-title{font-size:12px;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px}
+.weapon-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;font-size:14px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.weapon-row.weapon-header{border-bottom:1px solid var(--line);color:var(--muted);font-size:12px;letter-spacing:0.04em;padding-bottom:7px}
+.weapon-row.weapon-header span{font-weight:600}
+.weapon-row:last-child{border-bottom:none}
+.weapon-name{color:var(--fg);font-weight:600}
+.weapon-shortname{color:var(--muted)}
+.weapon-ammo{color:var(--fg);font-family:'Roboto',sans-serif;text-align:right}
+.weapon-empty{grid-template-columns:1fr;color:var(--muted);justify-content:center;text-align:center}
+
+/* Statistics panel */
+.stats-modal-bg{
+  position:fixed;inset:0;background:rgba(58,53,39,0.45);
+  z-index:110;display:none;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;
+}
+.stats-modal-bg.open{display:flex}
+.stats-modal{
+  width:100%;max-width:1150px;background:var(--panel);
+  border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 12px 40px rgba(58,53,39,0.25);
+}
+.stats-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.stats-head h3{margin:0;font-family:'Roboto',sans-serif;letter-spacing:0.06em;font-size:18px}
+.stats-record-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stats-record-status{font-size:13px;color:var(--muted)}
+.stats-record-status.live{color:var(--green)}
+.stats-tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.stats-tab{background:none;border:none;color:var(--muted);padding:9px 16px;cursor:pointer;font-family:'Roboto',sans-serif;font-size:14px;letter-spacing:0.04em;border-bottom:2px solid transparent}
+.stats-tab.active{color:var(--fg);border-bottom:2px solid var(--purple)}
+.stats-body{font-size:14px}
+.stats-empty{color:var(--muted);text-align:center;padding:30px 0}
+.stats-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:700px){.stats-grid-3{grid-template-columns:1fr}}
+.stats-card{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--bg)}
+.stats-card h4{margin:0 0 8px 0;font-size:13px;letter-spacing:0.06em;color:var(--muted)}
+.stats-card .big{font-size:24px;font-weight:700}
+.stats-table{width:100%;border-collapse:collapse;font-size:13px}
+.stats-table th{text-align:left;color:var(--muted);font-weight:600;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+.stats-table td{padding:7px 9px;border-bottom:1px dashed var(--line);white-space:nowrap}
+.stats-table tr:hover td{background:var(--bg2)}
+
+/* AI Chat Panel Updates */
+
+/* Floating draggable AI assistant icon (desktop only) */
+#aiFab{
+  position:fixed;
+  width:72px;height:72px;
+  z-index:1001;
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
+}
+#aiFab.dragging{cursor:grabbing;}
+#aiFab .ai-fab-img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  pointer-events:none;
+  filter:drop-shadow(0 8px 18px rgba(20,30,50,0.35));
+  transition:opacity .15s ease;
+}
+#aiFab .ai-fab-img-hover{opacity:0;}
+#aiFab:hover .ai-fab-img-default{opacity:0;}
+#aiFab:hover .ai-fab-img-hover{opacity:1;}
+
+#aiPanel{
+  position:fixed;width:380px;max-width:92vw;height:540px;max-height:80vh;
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:14px;display:none;flex-direction:column;overflow:hidden;z-index:1000;
+  box-shadow:0 12px 40px rgba(58,53,39,0.25);
+}
+html[dir="rtl"] #aiPanel { text-align: right; }
+#aiPanel.open{display:flex}
+.ai-head{padding:14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.ai-head b{font-size:14px;letter-spacing:0.08em}
+.ai-messages{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:9px}
+.msg{padding:9px 12px;border-radius:10px;font-size:14px;line-height:1.45;max-width:88%;word-break:break-word}
+.msg.user{align-self:flex-end;background:var(--bg2);color:var(--fg);border:1px solid var(--line)}
+html[dir="rtl"] .msg.user { align-self: flex-start; }
+.msg.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+html[dir="rtl"] .msg.bot { align-self: flex-end; }
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px;border-top:1px dashed var(--line);max-height:130px;overflow-y:auto}
+.chip{font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg);cursor:pointer}
+.chip:hover{border-color:var(--purple);color:var(--purple)}
+.ai-input{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line);align-items:center}
+.ai-input input{flex:1;background:var(--bg);border:1px solid var(--line);color:var(--fg);border-radius:8px;padding:9px;font-family:inherit;font-size:14px}
+
+@keyframes pulseSoft{from{opacity:0.5}to{opacity:1}}
+@keyframes pop{from{transform:scale(0.96);opacity:0}to{transform:scale(1);opacity:1}}
+.live{width:9px;height:9px;background:var(--green);border-radius:50%;display:inline-block;animation:pulseSoft 1.2s infinite alternate}
+
+/* ===== TACTICAL FORCE CARDS - merged from v3 "screenshot" layout: absolute
+   top-center title, absolute top-right alive-ratio ring, big overlapping
+   ALIVE/ONLINE scoring on the left, and a bottom-right KILLED | SOLDIERS |
+   VEHICLES strip, plus a footer strip for Total Activated/Soldiers/Vehicles
+   (all OK, GPS + no-GPS combined). Uses /BLUE1.png and /RED1.png. ===== */
+.scoreboard{
+  display:grid;grid-template-columns:1fr 140px 1fr;gap:16px;margin-bottom:22px;
+}
+@media(max-width:1000px){.scoreboard{grid-template-columns:1fr;}.vs{order:-1; min-height:90px;}}
+
+.team-card.tactical{
+  border:none;
+  border-radius:14px;
+  padding:0;
+  padding-bottom:42px;
+  overflow:hidden;
+  position:relative;
+  min-height:258px;
+  max-height:264px;
+  background:#0e2a5a;
+  box-shadow:0 8px 24px rgba(0,0,0,0.28);
+  display:block;
+}
+.team-card.tactical .tactical-bg{
+  position:absolute;inset:0;
+  background-size:cover;
+  background-position:center 35%;
+  opacity:0.85;
+  filter: brightness(0.85) contrast(1.05);
+}
+.team-card.tactical.blue .tactical-bg{
+  background-image:url('BLUE1.webp');
+}
+.team-card.tactical.red .tactical-bg{
+  background-image: url('RED1.webp');
+}
+.team-card.tactical .tactical-overlay{
+  position:absolute;inset:0;z-index:1;
+}
+.team-card.tactical.blue .tactical-overlay{
+  background: linear-gradient(90deg, rgba(8,22,48,0.98) 0%, rgba(12,36,78,0.92) 28%, rgba(16,48,96,0.65) 55%, rgba(20,56,112,0.2) 100%);
+}
+.team-card.tactical.red .tactical-overlay{
+  background: linear-gradient(90deg, rgba(52,12,12,0.98) 0%, rgba(78,20,20,0.92) 28%, rgba(96,28,28,0.65) 55%, rgba(112,32,32,0.2) 100%);
+}
+.team-card.tactical::after{display:none;}
+.team-card.tactical .tactical-content{
+  position:relative;z-index:2;
+  display:block;
+  width:100%;height:100%;
+  min-height:165px;
+  padding:0;
+  color:#e8eef8;
+}
+
+/* TITLE - was 14px top-center of the whole card; now ~5x bigger and
+   centered on the RING's horizontal midpoint instead (ring is right:12,
+   width 90 -> its center sits 57px from the card's right edge). Wraps to
+   2 lines via the fixed width instead of one huge unbroken line, and sits
+   at z-index 3 — below the ring/numbers/bottom-panel (z4-6) — so if its
+   height runs into their area, they simply paint over it rather than the
+   two overlapping illegibly. */
+.tactical-title{
+  position:absolute;
+  top:8px;
+  left:0;
+  right:0;
+  width:100%;
+  transform:none;
+  text-align:center;
+  font-family:'Roboto',sans-serif;
+  font-weight:900;
+  font-size:18px;
+  line-height:1;
+  letter-spacing:0.12em;
+  color:#dbe6ff;
+  text-shadow:0 2px 10px rgba(0,0,0,0.7);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  z-index:6;
+  pointer-events:none;
+}
+
+/* RING - top right, no label */
+.tactical-ring-wrap{
+  position:absolute;
+  top:8px;right:12px;
+  z-index:5;
+  display:flex;flex-direction:column;align-items:center;
+}
+.tactical-ring{
+  width:90px;height:90px;
+  border-radius:50%;
+  background: conic-gradient(#4ade80 0%, #4ade80 var(--pct, 0%), rgba(255,255,255,0.22) var(--pct, 0%), rgba(255,255,255,0.22) 100%);
+  border:3px solid rgba(120,140,180,0.65);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  box-shadow:0 0 0 2px rgba(0,0,0,0.3) inset;
+}
+.tactical-ring::before{
+  content:'';position:absolute;inset:5px;
+  background:#0a1020;border-radius:50%;
+}
+.tactical-ring span{
+  position:relative;z-index:2;
+  font-size:20px;font-weight:900;color:#fff;
+}
+.tactical-ring-label{display:none;}
+
+/* LEFT SCORING PANEL - big ALIVE/ONLINE numbers. tactical-mid now fills the
+   full content height (0 to 0) and is a flex column: the numbers area
+   (tactical-alive-wrap) takes the remaining space and the ALIVE/ONLINE
+   sublabel is a normal flow child pinned to the bottom of that column —
+   i.e. directly above the footer strip, never overlapping the numbers. */
+.tactical-mid{
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:34%;
+  z-index:4;
+  display:flex;
+  flex-direction:column;
+  padding:0;
+  margin:0;
+}
+.tactical-alive-wrap{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;flex-direction:column;
+  width:100%;
+  justify-content:center;
+  padding:0;
+  gap:0;
+  margin:0;
+}
+.tactical-alive{
+  display:block;
+  position:relative;
+  width:100%;height:88px;
+  margin:0;
+}
+.tactical-alive .t-icon{display:none;}
+.tactical-alive .big{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;height:100%;
+  line-height:1;
+}
+.tactical-alive .big #blueAliveBig,
+.tactical-alive .big #redAliveBig{
+  font-size:95px;font-weight:900;
+  color:#fff;
+  text-shadow:0 2px 10px rgba(0,0,0,0.7);
+  line-height:1;
+  text-align:center;
+}
+.tactical-sublabel{
+  flex:0 0 auto;
+  width:100%;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.06em;
+  color:#c8d6f0;
+  background: rgba(0,0,0,0.28);
+  padding:6px 8px;
+  margin:0;
+  text-align:center;
+  text-transform:uppercase;
+}
+
+/* BOTTOM RIGHT PANEL - KILLED | SOLDIERS | VEHICLES. Each box is a centered
+   column: icon on top, score + label stacked below it. Stacking (instead of
+   the old icon-left/text-right row) is what gives the bigger icon room
+   without it crowding the score, and lets each cell's content spread to
+   fill its own width evenly instead of bunching in the middle. */
+.tactical-bottom{
+  position:absolute;
+  bottom:42px;right:0;
+  width:66%;
+  height:112px;
+  z-index:5;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  background: rgba(0,0,0,0.50);
+  border-top:1px solid rgba(255,255,255,0.12);
+  border-left:1px solid rgba(255,255,255,0.08);
+  border-top-left-radius:20px;
+  padding:10px 4px 8px;
+  box-shadow:-3px -2px 12px rgba(0,0,0,0.4);
+}
+.t-bottom-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border-right:1px solid rgba(255,255,255,0.12);
+  padding:2px 6px;
+}
+.t-bottom-item:last-child{border-right:none;}
+.tb-side-icon{
+  flex-shrink:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:50px;
+  line-height:1;
+  opacity:0.95;
+}
+.tb-side-icon img{height:50px;width:auto;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));}
+.tb-side-icon img.tank{height:40px;}
+.tb-side-icon img.flip{transform:scaleX(-1);}
+.tb-text{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:1px;
+  min-width:0;
+}
+.tb-metric{
+  font-size:12px;
+  font-weight:800;
+  color:#fff;
+  line-height:1.35;
+  text-align:center;
+  white-space:nowrap;
+}
+.tb-label{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.06em;
+  color:#a8b8d8;
+  text-transform:uppercase;
+}
+
+/* FOOTER STRIP - Total Activated / Soldiers / Vehicles (ALL OK: GPS + no-GPS) */
+.tactical-nogps{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:42px;
+  background: rgba(4,8,20,0.96);
+  border-top:1px solid rgba(255,255,255,0.1);
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  z-index:6;
+  padding:0 8px;
+}
+.tn-item{
+  display:flex;align-items:center;justify-content:center;
+  gap:6px;
+  font-size:13px;font-weight:700;
+  letter-spacing:0.04em;
+  color:#a8b8d8;
+  text-transform:uppercase;
+  border-right:1px solid rgba(255,255,255,0.08);
+}
+.tn-item:last-child{border-right:none;}
+.tn-item b{
+  font-size:16px;font-weight:900;color:#fff;
+}
+
+.class-icon-img{height:42px;width:auto;display:inline-block;vertical-align:middle;margin-right:8px;}
+.class-icon-img.tank{height:35px;}
+.class-icon-img.flip{transform:scaleX(-1);}
+
+/* PLAYER CARD ICONS - reduced to 50% - banner icons stay 50px */
+.pcard .class-icon-img{height:21px !important; width:auto;}
+.pcard .class-icon-img.tank{height:18px !important;}
+
+html[dir="rtl"] .class-icon-img{margin-right:0;margin-left:8px;}
+
+/* VS card upgraded */
+.vs{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:none;border-radius:14px;background:#fdfcf7;
+  box-shadow:0 6px 20px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+  padding:12px;
+  min-height:148px;
+  position:relative;
+}
+.db-status-dot{
+  position:absolute;top:10px;right:12px;
+  width:11px;height:11px;border-radius:50%;
+  animation: dbStatusPulse 1.6s ease-in-out infinite;
+}
+.db-status-dot.status-green{ background:#22c55e; box-shadow:0 0 7px 1px rgba(34,197,94,0.7); }
+.db-status-dot.status-amber{ background:#f59e0b; box-shadow:0 0 7px 1px rgba(245,158,11,0.7); }
+.db-status-dot.status-red{ background:#ef4444; box-shadow:0 0 7px 1px rgba(239,68,68,0.7); }
+@keyframes dbStatusPulse{
+  0%,100%{opacity:1; transform:scale(1);}
+  50%{opacity:0.3; transform:scale(0.75);}
+}
+.vs b{font-size:30px;color:#1a2744;letter-spacing:0.06em;font-weight:900;}
+.vs span#vsState{font-size:10px;color:#6b7280;letter-spacing:0.18em;font-weight:700;margin-top:4px;}
+.vs #lastUpd{font-size:11px;color:#9ca3af;margin-top:10px;font-weight:600;}
+
+
+</style>
+</head>
+<body>
+<header>
+  <div class="brand" style="display:none">
+    <h1 id="appTitleText">: <span>MILITARY EXERCISE</span> // RED vs BLUE</h1>
+    <div id="dbBadge" class="badge db">DB: checking...</div>
+  </div>
+
+  <!-- Hidden for now (not deleted): langToggle/sysBadge/resetBtn removed from
+       UI per request; pdfBtn/statsBtn kept in DOM+JS to re-enable later.
+       The AI assistant was moved out of this hidden block into the floating
+       FAB (#aiFab / #aiPanel) below, so it's live again but no longer lives
+       in the header. -->
+  <div class="sys" style="display:none">
+    <button class="btn ghost" id="langToggle" onclick="toggleLang()">🌐 EN / AR</button>
+    <div id="sysBadge" class="badge">SYS <b id="cpu">--%</b> / <b id="mem">--%</b></div>
+    <button class="btn ghost" id="resetBtn">↻ FAST REPULL</button>
+    <button class="btn blue" id="pdfBtn">⭳ EXTRACT PDF REPORT</button>
+    <button class="btn ghost" id="statsBtn" onclick="openStatsPanel()">📊 STATISTICS</button>
+  </div>
+</header>
+
+<!-- Floating AI assistant: draggable icon, bottom-right by default. Desktop-only
+     (mouse-based drag; no touch handling). -->
+<div id="aiFab" title="AI Assistant">
+  <img id="aiFabImgDefault" class="ai-fab-img ai-fab-img-default" src="soldier_ai_helper.png" alt="AI Assistant" draggable="false"/>
+  <img id="aiFabImgHover" class="ai-fab-img ai-fab-img-hover" src="soldier_ai_helper_hovered.png" alt="" draggable="false"/>
+</div>
+<div id="aiPanel">
+  <div class="ai-head"><b id="aiHeadText">AI ASSISTANT - RAG: MILITARY EXERCISE</b><button class="btn" style="padding:2px 6px" onclick="toggleAI(false)">✕</button></div>
+  <div id="aiMsgs" class="ai-messages">
+    <div class="msg bot" id="aiIntroText">Greetings, Operator!<br>I'm your AI exercise assistant.<br>How can I support you today?</div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="ai-input">
+    <input id="aiInput" placeholder="Ask: how many blue alive?" onkeydown="if(event.key==='Enter') sendAI()"/>
+    <button class="btn primary" id="aiSendText">SEND</button>
+    <button class="btn red" id="aiStopText" style="display:none;" onclick="stopAI()">STOP</button>
+  </div>
+</div>
+
+<main>
+  <div class="controls">
+    <div class="ctrl-box exercise">
+      <div class="ctrl-box-label">Exercise</div>
+      <div class="ctrl-box-row">
+        <select id="exSelect"><option value="">— Click Confirm to load exercises —</option></select>
+        <button class="btn" id="exLoadBtn" onclick="handleConfirmClick()">CONFIRM</button>
+      </div>
+    </div>
+
+    <div class="ctrl-box phase">
+      <div class="ctrl-box-label">Phase / Duration</div>
+      <div class="ctrl-box-row">
+        <button class="btn" id="phaseStartBtn" onclick="handlePhaseStart()">▶ Start</button>
+        <button class="btn" id="phasePauseBtn" onclick="handlePhasePause()" disabled>❙❙ Pause</button>
+        <button class="btn" id="phaseStopBtn" onclick="handlePhaseStop()" disabled>■ Stop</button>
+      </div>
+    </div>
+
+    <div class="ctrl-box central">
+      <div class="ctrl-box-label">Central Filter</div>
+      <div class="ctrl-box-row">
+        <select id="centralSelectFilter" class="search-input filter-select" onchange="applyCentralFilter()">
+          <option value="">— Default —</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="ctrl-box ctrl-box-btn reports" id="reportsBtn">📊 Reports / Statistics</button>
+
+    <button class="ctrl-box ctrl-box-btn settings" id="settingsBtn">⚙ Settings</button>
+
+    <button class="bell-btn" id="notifBellBtn" title="Notifications">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2a1.5 1.5 0 0 0-1.5 1.5v.66C7.36 4.79 5 7.66 5 11v4.5L3 18v1h18v-1l-2-2.5V11c0-3.34-2.36-6.21-5.5-6.84V3.5A1.5 1.5 0 0 0 12 2zm0 20a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22z"/></svg>
+    </button>
+
+    <!-- Hidden for now (not deleted): exId/poll still get written to by JS
+         elsewhere, so the elements stay in the DOM to avoid null errors. -->
+    <div class="controls-right badge" style="display:none"><span id="exIdLabel">Exercise:</span> <b id="exId">-</b> | <span id="pollLabel">Poll:</span> <b id="poll">2s</b></div>
+  </div>
+
+  <div class="scoreboard">
+    <div class="team-card blue tactical">
+      <div class="tactical-bg"></div>
+      <div class="tactical-overlay"></div>
+      <div class="tactical-content">
+        <div class="tactical-top">
+          <div class="tactical-title" id="blueTeamTitle">BLUE TEAM</div>
+          <div class="tactical-ring-wrap">
+            <div class="tactical-ring" id="blueRing"><span id="bluePct">0%</span></div>
+            <div class="tactical-ring-label"><span id="blueRatioLabel">ALIVE RATIO</span></div>
+          </div>
+        </div>
+        <div class="tactical-mid">
+          <div class="tactical-alive-wrap">
+            <div class="tactical-alive">
+              <span class="t-icon">👥</span>
+              <span class="big"><span id="blueAliveBig">-</span></span>
+            </div>
+          </div>
+          <div class="tactical-sublabel">READY FOR ACTION</div>
+          <span id="blueTotalLabel" style="display:none">TOTAL</span>
+        </div>
+      </div>
+      <div class="tactical-bottom">
+        <div class="t-bottom-item">
+          <span class="tb-side-icon"><img src="/soldier-white.png" alt=""></span>
+          <div class="tb-text"><span class="tb-metric" id="blueSoldiersReady">COMBAT READY: -</span><span class="tb-metric" id="blueSoldiersKilled">KILLED: -</span><span class="tb-label">SOLDIERS</span></div>
+        </div>
+        <div class="t-bottom-item">
+          <span class="tb-side-icon"><img src="/tank-white.png" class="tank" alt=""></span>
+          <div class="tb-text"><span class="tb-metric" id="blueVehiclesReady">COMBAT READY: -</span><span class="tb-metric" id="blueVehiclesKilled">KILLED: -</span><span class="tb-label">VEHICLES</span></div>
+        </div>
+        <div class="t-bottom-item">
+          <span class="tb-side-icon"><img src="/soldier-dead.png" alt=""></span>
+          <div class="tb-text"><span class="tb-metric" id="blueTotalReady">COMBAT READY: -</span><span class="tb-metric" id="blueTotalKilled">KILLED: -</span><span class="tb-label">TOTAL KILLED</span></div>
+        </div>
+      </div>
+      <div class="tactical-nogps">
+        <div class="tn-item"><span>Total Activated:</span><b id="blueTotalNoGps">-</b></div>
+        <div class="tn-item"><span>Soldiers:</span><b id="blueSoldiersNoGps">-</b></div>
+        <div class="tn-item"><span>Vehicles:</span><b id="blueVehiclesNoGps">-</b></div>
+      </div>
+    </div>
+
+    <div class="vs"><span id="dbStatusDot" class="db-status-dot status-green" title="Database connection status"></span><b>VS</b><span id="vsState">STANDBY</span><div id="lastUpd">-</div></div>
+
+    <div class="team-card red tactical">
+      <div class="tactical-bg"></div>
+      <div class="tactical-overlay"></div>
+      <div class="tactical-content">
+        <div class="tactical-top">
+          <div class="tactical-title" id="redTeamTitle">RED TEAM</div>
+          <div class="tactical-ring-wrap">
+            <div class="tactical-ring" id="redRing"><span id="redPct">0%</span></div>
+            <div class="tactical-ring-label"><span id="redRatioLabel">ALIVE RATIO</span></div>
+          </div>
+        </div>
+        <div class="tactical-mid">
+          <div class="tactical-alive-wrap">
+            <div class="tactical-alive">
+              <span class="t-icon">👥</span>
+              <span class="big"><span id="redAliveBig">-</span></span>
+            </div>
+          </div>
+          <div class="tactical-sublabel">READY FOR ACTION</div>
+          <span id="redTotalLabel" style="display:none">TOTAL</span>
+        </div>
+      </div>
+      <div class="tactical-bottom">
+        <div class="t-bottom-item">
+          <span class="tb-side-icon"><img src="/soldier-white.png" class="flip" alt=""></span>
+          <div class="tb-text"><span class="tb-metric" id="redSoldiersReady">COMBAT READY: -</span><span class="tb-metric" id="redSoldiersKilled">KILLED: -</span><span class="tb-label">SOLDIERS</span></div>
+        </div>
+        <div class="t-bottom-item">
+          <span class="tb-side-icon"><img src="/tank-white.png" class="tank flip" alt=""></span>
+          <div class="tb-text"><span class="tb-metric" id="redVehiclesReady">COMBAT READY: -</span><span class="tb-metric" id="redVehiclesKilled">KILLED: -</span><span class="tb-label">VEHICLES</span></div>
+        </div>
+        <div class="t-bottom-item">
+          <span class="tb-side-icon"><img src="/soldier-dead.png" class="flip" alt=""></span>
+          <div class="tb-text"><span class="tb-metric" id="redTotalReady">COMBAT READY: -</span><span class="tb-metric" id="redTotalKilled">KILLED: -</span><span class="tb-label">TOTAL KILLED</span></div>
+        </div>
+      </div>
+      <div class="tactical-nogps">
+        <div class="tn-item"><span>Total Activated:</span><b id="redTotalNoGps">-</b></div>
+        <div class="tn-item"><span>Soldiers:</span><b id="redSoldiersNoGps">-</b></div>
+        <div class="tn-item"><span>Vehicles:</span><b id="redVehiclesNoGps">-</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="column">
+      <h3>
+        <span style="color:var(--blue)" id="blueOpsTitle">BLUE PLAYERS</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <!-- DYNAMIC FILTER DROPDOWN WITH DESIGNATOR ADDED -->
+          <select id="blueSelectFilter" class="search-input filter-select" onchange="applyFilters()">
+            <option value="ALL">Filter: All</option>
+          </select>
+          <select id="blueSortSelect" class="search-input filter-select" title="Sort by" onchange="applyFilters()">
+            <option value="STATUS">Sort: Status</option>
+            <option value="DESIG">Sort: Designator</option>
+            <option value="TACID">Sort: Tactical ID</option>
+            <option value="CLASS">Sort: Class</option>
+          </select>
+          <input type="text" id="blueSearch" class="search-input" placeholder="Filter..." oninput="debouncedApplyFilters()">
+          <span id="blueCountLabel"></span>
+        </div>
+      </h3>
+      <div id="blueGrid" class="players"></div>
+    </div>
+
+    <div class="column">
+      <h3>
+        <span style="color:var(--red)" id="redOpsTitle">RED PLAYERS</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <!-- DYNAMIC FILTER DROPDOWN WITH DESIGNATOR ADDED -->
+          <select id="redSelectFilter" class="search-input filter-select" onchange="applyFilters()">
+            <option value="ALL">Filter: All</option>
+          </select>
+          <select id="redSortSelect" class="search-input filter-select" title="Sort by" onchange="applyFilters()">
+            <option value="STATUS">Sort: Status</option>
+            <option value="DESIG">Sort: Designator</option>
+            <option value="TACID">Sort: Tactical ID</option>
+            <option value="CLASS">Sort: Class</option>
+          </select>
+          <input type="text" id="redSearch" class="search-input" placeholder="Filter..." oninput="debouncedApplyFilters()">
+          <span id="redCountLabel"></span>
+        </div>
+      </h3>
+      <div id="redGrid" class="players"></div>
+    </div>
+  </div>
+  <div id="unknownBox" style="display:none;margin-top:12px" class="column">
+    <h3 id="unknownTeamTitle">UNKNOWN TEAM</h3>
+    <div id="unkGrid" class="players"></div>
+  </div>
+</main>
+
+<div id="playerModalBg" class="modal-bg" onclick="if(event.target===this)closePlayer()">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h3 id="pmTitle">PLAYER METRICS</h3><button class="btn" onclick="closePlayer()">✕</button></div>
+    <div id="pmBody"></div>
+  </div>
+</div>
+
+<div id="statsModalBg" class="stats-modal-bg" onclick="if(event.target===this)closeStatsPanel()">
+  <div class="stats-modal">
+    <div class="stats-head">
+      <h3>📊 EXERCISE STATISTICS <span id="statsExId" style="color:var(--muted);font-size:14px"></span></h3>
+      <div class="stats-record-controls">
+        <span id="statsRecordStatus" class="stats-record-status">—</span>
+        <button class="btn primary" id="statsStartBtn" onclick="startRecording()">● START EXERCISE</button>
+        <button class="btn red" id="statsStopBtn" onclick="stopRecording()" style="display:none">■ STOP EXERCISE</button>
+        <button class="btn" onclick="closeStatsPanel()">✕</button>
+      </div>
+    </div>
+    <div class="stats-tabs">
+      <button class="stats-tab active" data-tab="overall" onclick="switchStatsTab('overall')">OVERALL</button>
+      <button class="stats-tab" data-tab="team" onclick="switchStatsTab('team')">TEAM</button>
+      <button class="stats-tab" data-tab="individual" onclick="switchStatsTab('individual')">INDIVIDUAL</button>
+    </div>
+    <div id="statsBody" class="stats-body"><div class="stats-empty">Loading…</div></div>
+  </div>
+</div>
+
+<script>
+// --- I18N TRANSLATION DICTIONARY ---
+let currentLang = 'en';
+const i18n = {
+  en: {
+    appTitle: ": <span>MILITARY EXERCISE</span> // RED vs BLUE",
+    livePull: "LIVE PULL",
+    repull: "↻ FAST REPULL",
+    pdfBtn: "⭳ EXTRACT PDF REPORT",
+    aiBtn: "AI ASSISTANT ▼",
+    aiHead: "AI ASSISTANT - RAG: MILITARY EXERCISE",
+    aiIntro: "Greetings, Operator!<br>I'm your AI exercise assistant.<br>How can I support you today?",
+    aiPlaceholder: "Ask: how many blue alive?",
+    aiSend: "SEND",
+    aiStop: "STOP",
+    blueTeam: "◼ BLUE FORCE",
+    redTeam: "◼ RED FORCE",
+    total: "TOTAL",
+    aliveRatio: "ALIVE RATIO",
+    blueOps: "BLUE PLAYERS",
+    redOps: "RED PLAYERS",
+    unknownTeam: "OC / UNKNOWN",
+    filter: "Filter...",
+    standby: "STANDBY",
+    engaged: "ENGAGED",
+    terminated: "TERMINATED",
+    exLabel: "Exercise:",
+    pollLabel: "Poll:",
+    statusReady: "Ready",
+    statusWounded: "Wounded",
+    statusKilled: "Killed",
+    statusCatastrophicKilled: "Catastrophic Killed",
+    statusUnknown: "Unknown",
+    ammoStr: "AMMO",
+    gpsWordStr: "GPS",
+    classHuman: "Human",
+    classApache: "Apache",
+    classVehicle: "Vehicle",
+    aiChips: [
+      "How many blue team are still alive?",
+      "How many red team are still alive?",
+      "Show killed players"
+    ]
+  },
+  ar: {
+    appTitle: "عملية: <span>تمرين عسكري</span> // الأحمر ضد الأزرق",
+    livePull: "سحب مباشر",
+    repull: "↻ تحديث سريع",
+    pdfBtn: "⭳ تقرير PDF",
+    aiBtn: "المساعد الذكي ▼",
+    aiHead: "المساعد الذكي - RAG: تمرين عسكري",
+    aiIntro: "تحياتي أيها المشغل!<br>أنا المساعد الذكي الخاص بالتمرين.<br>كيف يمكنني مساعدتك اليوم؟",
+    aiPlaceholder: "اسأل: كم عدد الأحياء في الفريق الأزرق؟",
+    aiSend: "إرسال",
+    aiStop: "إيقاف",
+    blueTeam: "◼ القوة الزرقاء",
+    redTeam: "◼ القوة الحمراء",
+    total: "الإجمالي",
+    aliveRatio: "نسبة الأحياء",
+    blueOps: "عناصر الأزرق",
+    redOps: "عناصر الأحمر",
+    unknownTeam: "OC / غير معروف",
+    filter: "تصفية...",
+    standby: "في الانتظار",
+    engaged: "اشتباك",
+    terminated: "منتهي",
+    exLabel: "التمرين:",
+    pollLabel: "الاستعلام:",
+    statusReady: "جاهز",
+    statusWounded: "مصاب",
+    statusKilled: "مقتول",
+    statusCatastrophicKilled: "قتل كارثي",
+    statusUnknown: "غير معروف",
+    ammoStr: "ذخيرة",
+    gpsWordStr: "GPS",
+    classHuman: "إنسان",
+    classApache: "أباتشي",
+    classVehicle: "مركبة",
+    aiChips: [
+      "كم عدد أفراد الفريق الأزرق الذين ما زالوا أحياء؟",
+      "كم عدد أفراد الفريق الأحمر الذين ما زالوا أحياء؟",
+      "عرض اللاعبين القتلى"
+    ]
+  }
+};
+
+function t(key) {
+  return i18n[currentLang][key] || key;
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'ar' : 'en';
+  document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  updateUIStrings();
+  if (lastSummary) render(lastSummary);
+}
+
+function updateUIStrings() {
+  el('appTitleText').innerHTML = t('appTitle');
+  el('resetBtn').textContent = t('repull');
+  el('pdfBtn').textContent = t('pdfBtn');
+  el('aiHeadText').textContent = t('aiHead');
+  el('aiIntroText').innerHTML = t('aiIntro');
+  el('aiInput').placeholder = t('aiPlaceholder');
+  el('aiSendText').textContent = t('aiSend');
+  el('aiStopText').textContent = t('aiStop');
+
+  el('blueTeamTitle').textContent = t('blueTeam');
+  el('redTeamTitle').textContent = t('redTeam');
+  el('blueTotalLabel').textContent = t('total');
+  el('redTotalLabel').textContent = t('total');
+  el('blueRatioLabel').textContent = t('aliveRatio');
+  el('redRatioLabel').textContent = t('aliveRatio');
+
+  el('blueOpsTitle').textContent = t('blueOps');
+  el('redOpsTitle').textContent = t('redOps');
+  el('unknownTeamTitle').textContent = t('unknownTeam');
+  el('blueSearch').placeholder = t('filter');
+  el('redSearch').placeholder = t('filter');
+
+  el('exLabel').textContent = t('exLabel');
+  el('pollLabel').textContent = t('pollLabel');
+
+  renderChips();
+}
+
+// Backend API hooks referencing your server setup
+const API = {
+  exercises: '/api/exercises',
+  summary: (id)=> `/api/exercise/${id}/summary`,
+  roster: (id)=> `/api/exercise/${id}/roster`,
+  sys: '/api/system-stats',
+  db: '/api/db-status',
+  dbRefresh: '/api/db-status/refresh',
+  testConn: '/api/test-connection',
+  llm: '/api/llm/chat',
+  serviceReset: '/api/service/reset',
+  hits: (id, eq)=> `/api/exercise/${id}/player/${eq}/hits`,
+  statsGet: (id)=> `/api/exercise/${id}/stats`,
+  statsStart: (id)=> `/api/exercise/${id}/stats/start`,
+  statsStop: (id)=> `/api/exercise/${id}/stats/stop`,
+};
+
+let currentId = null;
+let lastSummary = null;
+let pollTimer = null;
+let sysTimer = null;
+let aiAbortController = null;
+
+const el = (id)=> document.getElementById(id);
+const LAST_EXERCISE_KEY = 'dashboard.lastExerciseId';
+function persistLastExercise(id){ try{ localStorage.setItem(LAST_EXERCISE_KEY, id); }catch(e){} }
+function getPersistedExercise(){ try{ return localStorage.getItem(LAST_EXERCISE_KEY); }catch(e){ return null; } }
+
+async function fetchJSON(url, opts){
+  const r = await fetch(url, opts);
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+let exerciseListLoaded = false;
+
+async function loadExercises(){
+  const sel = el('exSelect');
+  const btn = el('exLoadBtn');
+  if(btn) btn.disabled = true;
+  sel.innerHTML = '<option value="">Loading exercises...</option>';
+  try{
+    const list = await fetchJSON(API.exercises);
+    sel.innerHTML = '<option value="">— Select an exercise —</option>';
+    list.forEach(ex=>{
+      const o=document.createElement('option');
+      o.value=ex.id; o.textContent=`${ex.id} — ${ex.name} [${ex.stateName}] ${ex.isActive?'● ACTIVE':''}`;
+      sel.appendChild(o);
+    });
+    // Dropdown is populated but left unselected — polling only starts once
+    // the user picks an exercise AND clicks CONFIRM again (see handleConfirmClick).
+    exerciseListLoaded = true;
+  }catch(e){ sel.innerHTML=`<option value="">ERR ${e.message}</option>`; exerciseListLoaded = false; }
+  finally{ if(btn) btn.disabled = false; }
+}
+
+// CONFIRM is a two-stage button:
+//  1st press (list not yet loaded): populate the dropdown only — no telemetry fetch.
+//  Subsequent presses (list already loaded): load/display telemetry for whatever
+//  exercise is currently selected, WITHOUT touching/reloading the dropdown itself
+//  (so arrowing through options right before pressing Confirm is never lost).
+function handleConfirmClick(){
+  if(!exerciseListLoaded){
+    loadExercises();
+    return;
+  }
+  const sel = el('exSelect');
+  const val = sel.value;
+  if(!val) return; // placeholder selected — nothing to load
+  if(val === currentId) return; // already the active exercise — no-op
+
+  currentId = val;
+  el('exId').textContent = currentId;
+  const btn = el('exLoadBtn');
+  if(btn) btn.disabled = true; // re-enabled only when a NEW exercise is selected (see change listener)
+  persistLastExercise(val);
+  startPolling();
+}
+
+function startPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  fetchSummary();
+  // Frontend display refresh stays 2s; backend DB refresh cadence is
+  // separately capped at 3s via response caching (see routes/exerciseSummary.js) —
+  // extra frontend polls within that 3s window just get the cached payload.
+  pollTimer = setInterval(fetchSummary, 2000);
+}
+
+// DB connection status dot on the VS box — green while the last poll
+// succeeded recently, amber after 30s with no successful poll, red after
+// 2 minutes. Only successful polls (not failed ones) push lastPollSuccessTs
+// forward, so a stalled/offline DB naturally ages from green -> amber -> red.
+let lastPollSuccessTs = Date.now();
+function updateDbStatusDot(){
+  const dot = el('dbStatusDot');
+  if(!dot) return;
+  const elapsed = Date.now() - lastPollSuccessTs;
+  dot.classList.remove('status-green','status-amber','status-red');
+  if (elapsed > 120000) dot.classList.add('status-red');
+  else if (elapsed > 30000) dot.classList.add('status-amber');
+  else dot.classList.add('status-green');
+}
+setInterval(updateDbStatusDot, 2000);
+
+async function fetchSummary(){
+  if(!currentId) return;
+  try{
+    const data = await fetchJSON(API.summary(currentId));
+    lastSummary = data;
+    render(data);
+    el('lastUpd').textContent = new Date().toLocaleTimeString();
+    lastPollSuccessTs = Date.now();
+    updateDbStatusDot();
+  }catch(e){ console.error(e); updateDbStatusDot(); }
+}
+
+function applyFilters(){
+  if(lastSummary) render(lastSummary);
+}
+
+// Generic debounce: delays invoking fn until `wait` ms have passed since
+// the last call. Used on the search inputs below since each keystroke
+// would otherwise trigger a full render() (including a full player-grid
+// rebuild) immediately.
+function debounce(fn, wait){
+  let timer = null;
+  return function(...args){
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
+const debouncedApplyFilters = debounce(applyFilters, 200);
+
+// Phase/Duration controls — standby placeholder only, no backend action yet.
+// Start: disables itself, enables Pause + Stop.
+// Pause: disables itself (Start stays disabled, Stop stays enabled).
+// Stop: disables itself, re-enables Start, disables Pause.
+function handlePhaseStart(){
+  el('phaseStartBtn').disabled = true;
+  el('phasePauseBtn').disabled = false;
+  el('phaseStopBtn').disabled = false;
+}
+function handlePhasePause(){
+  el('phasePauseBtn').disabled = true;
+  el('phaseStartBtn').disabled = false;
+}
+function handlePhaseStop(){
+  el('phaseStopBtn').disabled = true;
+  el('phaseStartBtn').disabled = false;
+  el('phasePauseBtn').disabled = true;
+}
+
+// Shared BITE/GPS helpers — "online" = has GPS AND no BITE cfg error.
+function hasBiteError(p){
+  return p.biteOk === false || (p.biteLabel && /error/i.test(p.biteLabel));
+}
+function hasGpsFix(p){
+  return p.noGps === false || p.noGps === null || p.noGps === undefined;
+}
+// Central Filter → Status categories.
+function isCombatReady(p){ return !hasBiteError(p) && hasGpsFix(p) && p.status && p.status !== 'Killed'; }
+function isOnlineStatusCat(p){ return !hasBiteError(p) && hasGpsFix(p); } // alive OR killed, doesn't matter
+function isOfflineStatusCat(p){ return hasBiteError(p) || !hasGpsFix(p); } // either/both, regardless of alive/killed
+// Tactical bottom-panel "KILLED" metric: no BITE cfg error, has GPS, and 0 HP.
+function isKilledZeroHp(p){ return !hasBiteError(p) && hasGpsFix(p) && (p.healthBars===null?4:p.healthBars) <= 0; }
+// SOLDIERS = Human, VEHICLES = Apache/Vehicle. Shared so render() doesn't
+// need its own local copy.
+function humanOf(arr){ return arr.filter(p => p.typeClass === 'Human'); }
+function vehicleOf(arr){ return arr.filter(p => p.typeClass === 'Apache' || p.typeClass === 'Vehicle'); }
+
+// Killed for a Human stays "Killed"; Killed for Apache/Vehicle becomes
+// "Catastrophic Killed". Returns a raw (non-localized) key: 'Ready' |
+// 'Wounded' | 'Killed' | 'CatastrophicKilled' | 'Unknown'.
+function effectiveStatusKey(p){
+  if (p.status === 'Killed' && (p.typeClass === 'Apache' || p.typeClass === 'Vehicle')) return 'CatastrophicKilled';
+  return p.status || 'Unknown';
+}
+
+// Central filter is now persistent/additive rather than an override: it no
+// longer writes into blueSelectFilter/redSelectFilter at all. When central
+// is engaged, render() combines it (AND) with each team's own dropdown;
+// per-team filters only act alone once central is back to "Off".
+function applyCentralFilter(){
+  applyFilters();
+}
+
+// Shared option-group builder for central/blue/red — all three now show the
+// identical option set: Status (3 fixed categories) / Designator / Tactical
+// ID / Class, built from unique values across blue+red combined (excludes
+// unknownTeam/oc). `defaultOptionHtml` is the one thing that differs
+// between central ("— Default —") and team ("All").
+function buildStandardFilterGroups(blue, red){
+  const designators = new Set(), tacIds = new Set(), classes = new Set();
+  [...(blue||[]), ...(red||[])].forEach(p => {
+    if (p.designator && p.designator.trim() !== '') designators.add(p.designator.trim());
+    if (p.tacticalIdentifier && String(p.tacticalIdentifier).trim() !== '') tacIds.add(String(p.tacticalIdentifier).trim());
+    if (p.typeClass) classes.add(p.typeClass);
+  });
+  return {
+    desigArray: Array.from(designators).sort(),
+    tacIdArray: Array.from(tacIds).sort(),
+    classArray: Array.from(classes).sort(),
+  };
+}
+
+function standardFilterOptionsHtml(groups){
+  const { desigArray, tacIdArray, classArray } = groups;
+  let html = `<optgroup label="Status">` +
+    `<option value="STATUSCAT_COMBAT_READY">Combat Ready</option>` +
+    `<option value="STATUSCAT_ONLINE">Online</option>` +
+    `<option value="STATUSCAT_OFFLINE">Offline</option>` +
+    `</optgroup>`;
+  if (desigArray.length) {
+    html += `<optgroup label="Designator">` +
+      desigArray.map(d => `<option value="DESIG_${d}">${d}</option>`).join('') +
+      `</optgroup>`;
+  }
+  if (tacIdArray.length) {
+    html += `<optgroup label="Tactical ID">` +
+      tacIdArray.map(x => `<option value="TACID_${x}">${x}</option>`).join('') +
+      `</optgroup>`;
+  }
+  if (classArray.length) {
+    html += `<optgroup label="Class">` +
+      classArray.map(c => `<option value="CLASS_${c}">${t('class'+c)}</option>`).join('') +
+      `</optgroup>`;
+  }
+  return html;
+}
+
+function standardFilterGroupsSig(groups){
+  return [groups.desigArray, groups.tacIdArray, groups.classArray].map(a => a.join('|')).join('||');
+}
+
+// Rebuilds a select's Status/Designator/Tactical ID/Class options in place,
+// preserving the current selection when it still exists (dataset.sig
+// short-circuits when nothing has actually changed, so an open dropdown
+// isn't disrupted mid-poll). `initialValue`, when given, is what a
+// first-ever build defaults to (falls back to `fallbackVal` if that value
+// isn't available yet) — used so the central filter still opens on
+// "Combat Ready" by default while team dropdowns keep opening on "All".
+function updateStandardFilterDropdown(selectId, blue, red, defaultOptionHtml, fallbackVal, initialValue){
+  const sel = el(selectId);
+  if (!sel) return;
+  const groups = buildStandardFilterGroups(blue, red);
+  const sig = standardFilterGroupsSig(groups);
+  if (sel.dataset.sig === sig) return;
+  sel.dataset.sig = sig;
+
+  const currentVal = sel.value;
+  const isFirstBuild = !sel.dataset.initialized;
+  sel.innerHTML = defaultOptionHtml + standardFilterOptionsHtml(groups);
+
+  const preferredVal = isFirstBuild && initialValue ? initialValue : currentVal;
+  if (Array.from(sel.options).some(o => o.value === preferredVal)) {
+    sel.value = preferredVal;
+  } else {
+    sel.value = fallbackVal;
+  }
+  if (isFirstBuild) sel.dataset.initialized = '1';
+}
+
+// Core value-match logic shared by team dropdowns and the central filter —
+// no search text here, that's layered on separately in filterPlayer.
+function matchesFilterValue(p, val){
+  if (!val || val === 'ALL') return true;
+  if (val.startsWith('CLASS_'))  return p.typeClass === val.substring(6);
+  if (val === 'STATUSCAT_COMBAT_READY') return isCombatReady(p);
+  if (val === 'STATUSCAT_ONLINE')       return isOnlineStatusCat(p);
+  if (val === 'STATUSCAT_OFFLINE')      return isOfflineStatusCat(p);
+  if (val.startsWith('DESIG_'))  return p.designator === val.substring(6);
+  if (val.startsWith('TACID_'))  return String(p.tacticalIdentifier) === val.substring(6);
+  return true;
+}
+
+// Status-category sort priority, per spec: Combat Ready, then Online, then
+// Offline. isCombatReady is a subset of isOnlineStatusCat (both require no
+// BITE error + a GPS fix), so it's checked first to keep the three buckets
+// mutually exclusive here.
+function statusCatSortRank(p){
+  if (isCombatReady(p)) return 0;
+  if (isOnlineStatusCat(p)) return 1;
+  return 2;
+}
+
+// Shared sort comparator for both team grids. Ties always fall back to
+// equipmentNumber ascending, so the order stays stable/predictable instead
+// of jittering between polls when the primary key is equal.
+function sortPlayers(players, sortBy){
+  const arr = players.slice();
+  const byEqAsc = (a, b) => a.equipmentNumber - b.equipmentNumber;
+  const cmpStr = (a, b) => {
+    const av = (a == null || a === '') ? null : String(a);
+    const bv = (b == null || b === '') ? null : String(b);
+    if (av === null && bv === null) return 0;
+    if (av === null) return 1;   // blanks sort last
+    if (bv === null) return -1;
+    return av.localeCompare(bv);
+  };
+  arr.sort((a, b) => {
+    let c = 0;
+    if (sortBy === 'DESIG') c = cmpStr(a.designator, b.designator);
+    else if (sortBy === 'TACID') c = cmpStr(a.tacticalIdentifier, b.tacticalIdentifier);
+    else if (sortBy === 'CLASS') c = cmpStr(a.typeClass, b.typeClass);
+    else c = statusCatSortRank(a) - statusCatSortRank(b); // 'STATUS' and default
+    return c !== 0 ? c : byEqAsc(a, b);
+  });
+  return arr;
+}
+
+
+
+
+
+function render(data){
+  const {counts, blue, red, unknownTeam} = data;
+
+  const hitFlashes = detectHitFlashes([...(blue||[]), ...(red||[]), ...(unknownTeam||[])]);
+
+  // All three dropdowns (central, blue, red) show the identical grouped
+  // option set — unique Class / Health-Status / Designator / Tactical ID /
+  // Type Name / BITE Cfg values across blue+red combined (unknownTeam/oc
+  // excluded per spec).
+  updateStandardFilterDropdown('blueSelectFilter', blue, red, '<option value="ALL">Filter: All</option>', 'ALL');
+  updateStandardFilterDropdown('redSelectFilter', blue, red, '<option value="ALL">Filter: All</option>', 'ALL');
+  updateStandardFilterDropdown('centralSelectFilter', blue, red, '<option value="">— Default —</option>', '', 'STATUSCAT_COMBAT_READY');
+
+  const centralVal = el('centralSelectFilter') ? el('centralSelectFilter').value : '';
+
+  // Central is persistent/additive: once engaged, a player must satisfy
+  // BOTH the central value AND their own team's dropdown value. With
+  // central "Off" (''), only the team's own dropdown applies — the team
+  // dropdown never gets overwritten by central, per spec.
+  const filterPlayer = (p, searchTxt, dropdownVal) => {
+    if (!matchesFilterValue(p, dropdownVal)) return false;
+    if (centralVal !== '' && !matchesFilterValue(p, centralVal)) return false;
+
+    // Search bar logic
+    if (searchTxt) {
+      const term = searchTxt.toLowerCase();
+      const str = [
+        p.equipmentNumber, p.status, p.biteLabel, p.typeName, p.designator, p.tacticalIdentifier
+      ].join(' ').toLowerCase();
+      if (!str.includes(term)) return false;
+    }
+    return true;
+  };
+
+  const bSearch = el('blueSearch') ? el('blueSearch').value : '';
+  const rSearch = el('redSearch') ? el('redSearch').value : '';
+  const bFilterDrop = el('blueSelectFilter') ? el('blueSelectFilter').value : 'ALL';
+  const rFilterDrop = el('redSelectFilter') ? el('redSelectFilter').value : 'ALL';
+  const bSortBy = el('blueSortSelect') ? el('blueSortSelect').value : 'STATUS';
+  const rSortBy = el('redSortSelect') ? el('redSortSelect').value : 'STATUS';
+
+  const filteredBlue = sortPlayers((blue || []).filter(p => filterPlayer(p, bSearch, bFilterDrop)), bSortBy);
+  const filteredRed = sortPlayers((red || []).filter(p => filterPlayer(p, rSearch, rFilterDrop)), rSortBy);
+
+  // --- FIXED STATS PATCH v2: ALL cards FIXED based on All OK w/ GPS (not dynamic to filter) ---
+  const fixedBlueOnline = (blue||[]).filter(hasGpsFix);
+  const fixedRedOnline = (red||[]).filter(hasGpsFix);
+  const fixedBlueTotal = fixedBlueOnline.length;
+  const fixedRedTotal = fixedRedOnline.length;
+  const fixedBlueAlive = fixedBlueOnline.filter(p => p.status && p.status !== 'Killed').length;
+  const fixedRedAlive = fixedRedOnline.filter(p => p.status && p.status !== 'Killed').length;
+
+  // SOLDIERS = Human, VEHICLES = Apache/Vehicle
+  const blueHuman = humanOf(fixedBlueOnline);
+  const blueVeh = vehicleOf(fixedBlueOnline);
+  const redHuman = humanOf(fixedRedOnline);
+  const redVeh = vehicleOf(fixedRedOnline);
+
+  // Tactical bottom-panel metrics: COMBAT READY (no BITE error + GPS + alive)
+  // and KILLED (no BITE error + GPS + 0 HP), scoped per category.
+  const blueSoldiersReady = blueHuman.filter(isCombatReady).length;
+  const blueSoldiersKilled = blueHuman.filter(isKilledZeroHp).length;
+  const blueVehiclesReady = blueVeh.filter(isCombatReady).length;
+  const blueVehiclesKilled = blueVeh.filter(isKilledZeroHp).length;
+  const blueTotalReady = fixedBlueOnline.filter(isCombatReady).length;
+  const blueTotalKilled = fixedBlueOnline.filter(isKilledZeroHp).length;
+  const redSoldiersReady = redHuman.filter(isCombatReady).length;
+  const redSoldiersKilled = redHuman.filter(isKilledZeroHp).length;
+  const redVehiclesReady = redVeh.filter(isCombatReady).length;
+  const redVehiclesKilled = redVeh.filter(isKilledZeroHp).length;
+  const redTotalReady = fixedRedOnline.filter(isCombatReady).length;
+  const redTotalKilled = fixedRedOnline.filter(isKilledZeroHp).length;
+
+  // Main card numbers are FIXED
+  el('blueAliveBig').textContent = fixedBlueAlive;
+  el('redAliveBig').textContent = fixedRedAlive;
+
+  // Bottom bar FIXED - SOLDIERS | VEHICLES | TOTAL KILLED
+  if(el('blueSoldiersReady')) el('blueSoldiersReady').textContent = `COMBAT READY: ${blueSoldiersReady}`;
+  if(el('blueSoldiersKilled')) el('blueSoldiersKilled').textContent = `KILLED: ${blueSoldiersKilled}`;
+  if(el('blueVehiclesReady')) el('blueVehiclesReady').textContent = `COMBAT READY: ${blueVehiclesReady}`;
+  if(el('blueVehiclesKilled')) el('blueVehiclesKilled').textContent = `KILLED: ${blueVehiclesKilled}`;
+  if(el('blueTotalReady')) el('blueTotalReady').textContent = `COMBAT READY: ${blueTotalReady}`;
+  if(el('blueTotalKilled')) el('blueTotalKilled').textContent = `KILLED: ${blueTotalKilled}`;
+  if(el('redSoldiersReady')) el('redSoldiersReady').textContent = `COMBAT READY: ${redSoldiersReady}`;
+  if(el('redSoldiersKilled')) el('redSoldiersKilled').textContent = `KILLED: ${redSoldiersKilled}`;
+  if(el('redVehiclesReady')) el('redVehiclesReady').textContent = `COMBAT READY: ${redVehiclesReady}`;
+  if(el('redVehiclesKilled')) el('redVehiclesKilled').textContent = `KILLED: ${redVehiclesKilled}`;
+  if(el('redTotalReady')) el('redTotalReady').textContent = `COMBAT READY: ${redTotalReady}`;
+  if(el('redTotalKilled')) el('redTotalKilled').textContent = `KILLED: ${redTotalKilled}`;
+
+  // PATCH: Total strip = ALL OK (w/ GPS + No GPS) = Total Activated
+  const isNoGps = (p) => p.noGps === true;
+  const noGpsBlue = (blue||[]).filter(isNoGps);
+  const noGpsRed = (red||[]).filter(isNoGps);
+  // All OK = fixed (w/ GPS) + No GPS
+  const allOkBlueTotal = fixedBlueOnline.length + noGpsBlue.length;
+  const allOkRedTotal = fixedRedOnline.length + noGpsRed.length;
+  const allOkBlueSoldiers = humanOf(blue||[]).length;
+  const allOkRedSoldiers = humanOf(red||[]).length;
+  const allOkBlueVehicles = vehicleOf(blue||[]).length;
+  const allOkRedVehicles = vehicleOf(red||[]).length;
+  if(el('blueTotalNoGps')) el('blueTotalNoGps').textContent = allOkBlueTotal;
+  if(el('blueSoldiersNoGps')) el('blueSoldiersNoGps').textContent = allOkBlueSoldiers;
+  if(el('blueVehiclesNoGps')) el('blueVehiclesNoGps').textContent = allOkBlueVehicles;
+  if(el('redTotalNoGps')) el('redTotalNoGps').textContent = allOkRedTotal;
+  if(el('redSoldiersNoGps')) el('redSoldiersNoGps').textContent = allOkRedSoldiers;
+  if(el('redVehiclesNoGps')) el('redVehiclesNoGps').textContent = allOkRedVehicles;
+
+  const bp = fixedBlueTotal? Math.round(fixedBlueAlive/fixedBlueTotal*100):0;
+  const rp = fixedRedTotal? Math.round(fixedRedAlive/fixedRedTotal*100):0;
+  el('bluePct').textContent = bp+'%';
+  el('redPct').textContent = rp+'%';
+
+  // --- PIE CHART PATCH: green bar dynamic to % ---
+  try{
+    const blueRing = el('blueRing');
+    const redRing = el('redRing');
+    if(blueRing){
+      blueRing.style.setProperty('--pct', bp+'%');
+      blueRing.style.background = `conic-gradient(#4ade80 0%, #4ade80 ${bp}%, rgba(255,255,255,0.22) ${bp}%, rgba(255,255,255,0.22) 100%)`;
+    }
+    if(redRing){
+      redRing.style.setProperty('--pct', rp+'%');
+      redRing.style.background = `conic-gradient(#4ade80 0%, #4ade80 ${rp}%, rgba(255,255,255,0.22) ${rp}%, rgba(255,255,255,0.22) 100%)`;
+    }
+  }catch(e){}
+
+  // VS ENGAGED/TERMINATED reflects the true, unfiltered exercise state —
+  // not the currently-viewed filtered subset — via the server-provided counts.
+  const vsStatus = counts.blueAlive===0||counts.redAlive===0 ? 'terminated' : 'engaged';
+  el('vsState').textContent = t(vsStatus);
+
+  el('blueCountLabel').textContent = `${filteredBlue.length}`;
+  el('redCountLabel').textContent = `${filteredRed.length}`;
+
+  renderPlayers('blueGrid', filteredBlue, hitFlashes);
+  renderPlayers('redGrid', filteredRed, hitFlashes);
+
+  if(unknownTeam && unknownTeam.length){
+    el('unknownBox').style.display='block';
+    renderPlayers('unkGrid', unknownTeam, hitFlashes);
+  } else {
+    el('unknownBox').style.display='none';
+  }
+
+  // Keep an open player modal live across polls. Search the UNFILTERED
+  // blue/red/unknownTeam (not filteredBlue/filteredRed) so the modal keeps
+  // updating even if the player would currently be hidden by a search/
+  // dropdown filter on the grid behind it.
+  if (currentModalPlayer && el('playerModalBg').classList.contains('open')) {
+    const allPlayers = [...(blue||[]), ...(red||[]), ...(unknownTeam||[])];
+    const updated = allPlayers.find(pl =>
+      pl.equipmentNumber === currentModalPlayer.equipmentNumber && pl.team === currentModalPlayer.team
+    );
+    if (updated) updatePlayerModal(updated);
+    // If not found (player left the exercise / roster changed), leave the
+    // modal showing its last known data rather than forcing it closed.
+  }
+}
+
+// Vehicle icon also covers Apache for now, per spec — only Human gets the
+// soldier icon. Red-team players get the horizontally-flipped artwork since
+// the source PNGs face right (blue-team orientation) by default.
+function classIconHtml(p){
+  const flip = p.team === 'red' ? ' flip' : '';
+  if (p.typeClass === 'Human') return `<img src="/soldier-black.png" class="class-icon-img${flip}" alt="">`;
+  if (p.typeClass === 'Apache' || p.typeClass === 'Vehicle') return `<img src="/tank-black.png" class="class-icon-img tank${flip}" alt="">`;
+  return '';
+}
+
+// Poll-to-poll memory for the card-flash feature — the backend has no
+// notion of "previous poll", so this tracks the last-seen lastHitAt per
+// equipmentNumber across calls to detectHitFlashes() below. Deliberately a
+// module-level Map, not reset per-render, so it survives filter/search
+// changes and only resets on a full page load.
+const lastHitAtSeen = new Map();
+
+// Compares this poll's players against the last-seen state-change
+// timestamp per player. A player whose lastHitAt just changed to a "real"
+// hit gets flagged as having received damage; if that hit has an
+// attributable originator who is also a currently-known player, the
+// originator gets flagged as having dealt damage. First sighting of a
+// player only establishes the baseline — it never flashes retroactively
+// for history that happened before the page was open.
+function detectHitFlashes(allPlayers){
+  const knownEquipmentNumbers = new Set(allPlayers.map(p => p.equipmentNumber));
+  const received = new Set();
+  const dealt = new Set();
+
+  allPlayers.forEach(p => {
+    if(p.lastHitAt === null || p.lastHitAt === undefined) return;
+    const prev = lastHitAtSeen.get(p.equipmentNumber);
+    lastHitAtSeen.set(p.equipmentNumber, p.lastHitAt);
+    if(prev === undefined || prev === p.lastHitAt) return;
+
+    if(p.lastHitIsReal){
+      received.add(p.equipmentNumber);
+      if(p.lastHitOriginatorId !== null && p.lastHitOriginatorId !== undefined
+         && knownEquipmentNumbers.has(p.lastHitOriginatorId)){
+        dealt.add(p.lastHitOriginatorId);
+      }
+    }
+  });
+
+  return { received, dealt };
+}
+
+function renderPlayers(gridId, players, hitFlashes){
+  const grid = el(gridId);
+
+  // Reuse existing .pcard nodes (keyed by equipmentNumber) instead of
+  // tearing the whole grid down and rebuilding every card from scratch
+  // on every poll. Most players' data is unchanged between two 2s
+  // polls, so each card also caches a content signature (`_sig`) and
+  // skips the actual DOM write when nothing about it changed — the
+  // previous version re-rendered every card's innerHTML every 2s
+  // regardless of whether anything on it was different.
+  const existingByEq = new Map();
+  Array.from(grid.children).forEach(node => {
+    if(node.dataset && node.dataset.eq !== undefined) existingByEq.set(node.dataset.eq, node);
+  });
+
+  const orderedNodes = players.map(p => {
+    const key = String(p.equipmentNumber);
+    let d = existingByEq.get(key);
+    if(d){
+      existingByEq.delete(key); // still present this poll — keep it
+    } else {
+      d = document.createElement('div');
+      d.dataset.eq = p.equipmentNumber;
+    }
+
+    const flashCls = hitFlashes && hitFlashes.received.has(p.equipmentNumber) ? ' flash-damage-received'
+      : hitFlashes && hitFlashes.dealt.has(p.equipmentNumber) ? ' flash-damage-dealt' : '';
+    const className = `pcard ${p.team} ${p.status==='Killed'?'killed':''} ${isOfflineStatusCat(p)?'offline':''}${flashCls}`;
+    const lowAmmo = p.ammo !== null && p.ammo > 0 && p.ammo < 30;
+    const emptyAmmo = p.ammo !== null && p.ammo <= 0;
+    const bars = (p.healthBars===null?4:p.healthBars);
+    const clampedBars = Math.max(0, Math.min(4, bars));
+    const hpCls = bars <= 0 ? 'hp-killed' : (p.hpColorClass || 'hp-green');
+    // 4 discrete segments (one per HP bar) instead of one continuously-filled
+    // line — segments up to clampedBars are colored, the rest stay empty.
+    const barHtml = Array.from({length:4}, (_,i) => `<i class="${i < clampedBars ? hpCls : ''}"></i>`).join('');
+
+    const manualBtnHtml = p.manual
+      ? `<b style="color:var(--red);cursor:pointer;margin-left:6px;font-size:14px;padding:0 4px;" title="Remove from Roster" onclick="event.stopPropagation(); removePlayer('${p.team}', ${p.equipmentNumber})">✕</b>`
+      : '';
+
+    // Card view intentionally omits the "(Near Miss)" suffix (just shows
+    // "Wounded") — the modal keeps the full detail, see openPlayer/
+    // updatePlayerModal below.
+    const localStatus = t('status' + effectiveStatusKey(p));
+    const ammoNum = (p.ammo === null || p.ammo === undefined) ? null : (p.ammo < 0 ? 0 : p.ammo);
+    const ammoText = ammoNum === null ? '' : (ammoNum + ' ' + t('ammoStr'));
+    const ammoBadgeHtml = ammoNum === null ? '' : `<span class="ammo ${emptyAmmo?'empty':lowAmmo?'low':''}">${ammoText}</span>`;
+    const gpsWordHtml = p.noGps === null || p.noGps === undefined
+      ? ''
+      : `<span class="gps-word ${p.noGps ? 'no' : 'has'}"><span class="gps-dot"></span>${t('gpsWordStr')}</span>`;
+
+    const innerHtml = `
+      <div class="top">
+        <span class="id">${classIconHtml(p)}#${p.equipmentNumber} ${manualBtnHtml}</span>
+        ${ammoBadgeHtml}
+      </div>
+      <div style="font-size:11px;color:var(--black);margin-top:3px">${(p.designator||'')+' '+(p.tacticalIdentifier||'')} ${(p.typeName||'').slice(0,18)}</div>
+      <div class="hbar">${barHtml}</div>
+      <div class="status ${p.status||''}"><span class="status-left"><span class="dot ${p.status==='Killed'?'dead':'alive'}"></span>${localStatus}</span>${gpsWordHtml}</div>
+    `;
+
+    // Only touch the DOM if the rendered output actually changed.
+    const sig = className + '|' + innerHtml;
+    if(d._sig !== sig){
+      d.className = className;
+      d.innerHTML = innerHtml;
+      d._sig = sig;
+    }
+    d.onclick = () => openPlayer(p); // cheap; keeps the closure's `p` current
+    return d;
+  });
+
+  // Anything left in existingByEq belongs to a player no longer in this
+  // list (left the field, or filtered/sorted out) — remove it.
+  existingByEq.forEach(node => node.remove());
+
+  // Reconcile DOM order to match `orderedNodes`, moving only the nodes
+  // that are actually out of place instead of detaching everything.
+  let ref = grid.firstChild;
+  orderedNodes.forEach(node => {
+    if(node === ref){
+      ref = ref.nextSibling;
+    } else {
+      grid.insertBefore(node, ref);
+    }
+  });
+}
+
+let currentModalPlayer = null; // {team, equipmentNumber} of the currently-open modal, or null
+
+function weaponsBoxHtml(p){
+  return (p.weapons && p.weapons.length)
+    ? `<div class="weapon-row weapon-header">
+        <span class="weapon-name">Gear Type</span>
+        <span class="weapon-shortname">Charge Type</span>
+        <span class="weapon-ammo">Ammo</span>
+      </div>` +
+      p.weapons.map(w => `
+      <div class="weapon-row">
+        <span class="weapon-name">${w.name}</span>
+        <span class="weapon-shortname">${w.chargeTypeName}</span>
+        <span class="weapon-ammo">${w.remaining===null?'?':w.remaining}/${w.total===null?'?':w.total}</span>
+      </div>`).join('')
+    : `<div class="weapon-row weapon-empty">No weapons assigned</div>`;
+}
+
+function healthBarHtml(p){
+  const bars = p.healthBars===null?4:p.healthBars;
+  const pct = Math.max(0, Math.min(4, bars)) / 4 * 100;
+  const color = bars <= 0 ? colorFor('hp-killed') : colorFor(p.hpColorClass);
+  return `<i style="width:${pct}%;background:${color}"></i>`;
+}
+
+// "All OK, No GPS" gets a warning triangle instead of a green check — BITE
+// itself passed, but GPS didn't, and a plain ✅ would read as fully green
+// across the board. Error stays ❌, "No Data" stays blank.
+function biteIcon(p){
+  if(p.biteOk === null || p.biteOk === undefined) return '';
+  if(p.biteOk === false) return '❌';
+  return p.biteLabel === 'All OK, No GPS' ? '⚠️' : '✅';
+}
+
+function openPlayer(p){
+  currentModalPlayer = {team:p.team, equipmentNumber:p.equipmentNumber};
+  const localStatus = t('status' + effectiveStatusKey(p)) + (p.nearMiss ? ' (Near Miss)' : '');
+  const teamColor = p.team==='blue' ? 'var(--blue)' : p.team==='red' ? 'var(--red)' : p.team==='oc' ? 'var(--purple)' : 'var(--muted)';
+  const teamLabel = p.team==='oc' ? 'OC' : p.team.toUpperCase();
+
+  el('pmTitle').textContent=`PLAYER #${p.equipmentNumber} // ${p.team.toUpperCase()}`;
+  // Built once with stable IDs on the parts that change between polls, so
+  // updatePlayerModal() can patch just those nodes on refresh instead of
+  // replacing this whole block — a full innerHTML rebuild every 2s is what
+  // was causing the modal to visibly blink.
+  el('pmBody').innerHTML=`
+    <div class="health-big" id="pmHealthBar">${healthBarHtml(p)}</div>
+    <div class="kv"><b>PAN ID</b><span>${classIconHtml(p)}#${p.equipmentNumber}</span></div>
+    <div class="kv"><b>Team</b><span id="pmTeam" style="color:${teamColor}">${teamLabel} ${p.manual?'(MANUAL)':''}</span></div>
+    <div class="kv"><b>Class</b><span id="pmClass">${p.typeClass ? t('class'+p.typeClass) : '—'}</span></div>
+    <div class="kv"><b>Health - Status</b><span id="pmHealthStatus">${localStatus}</span></div>
+    <div class="kv"><b>Designator</b><span id="pmDesignator">${p.designator||'—'}</span></div>
+    <div class="kv"><b>Tactical ID</b><span id="pmTacticalId">${p.tacticalIdentifier||'—'}</span></div>
+    <div class="kv"><b>Type Name</b><span id="pmTypeName">${p.typeName||'—'}</span></div>
+    <div class="kv"><b>BITE Cfg</b><span id="pmBite">${p.biteLabel} ${biteIcon(p)}</span></div>
+    <div class="weapons-box">
+      <div class="weapons-box-title">ASSIGNED WEAPONS</div>
+      <div id="pmWeapons">${weaponsBoxHtml(p)}</div>
+    </div>
+    <div class="weapons-box">
+      <div class="weapons-box-title" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleHistoryCollapse()">
+        <span>HISTORY</span>
+        <button type="button" id="pmHistoryToggleBtn" class="btn ghost" style="padding:1px 9px;font-size:14px;line-height:1.4" onclick="event.stopPropagation(); toggleHistoryCollapse()">+</button>
+      </div>
+      <div id="pmHistoryBody" style="display:none">
+        <div class="hit-row hit-header">
+          <span></span><span>Player</span><span>Result</span><span>Charge</span><span>Time</span>
+        </div>
+        <div id="pmHistory" class="hit-scroll"></div>
+      </div>
+    </div>
+  `;
+  el('playerModalBg').classList.add('open');
+  historyCollapsed = true;
+  refreshHitHistory(p);
+}
+
+// Called from render() on every poll while a modal is open. Patches only
+// the fields that can change (health, status, bite, weapons/ammo) in place
+// — never touches el('pmBody').innerHTML — so the modal doesn't flash/
+// blink the way a full rebuild every 2s would.
+function updatePlayerModal(p){
+  const localStatus = t('status' + effectiveStatusKey(p)) + (p.nearMiss ? ' (Near Miss)' : '');
+  const teamColor = p.team==='blue' ? 'var(--blue)' : p.team==='red' ? 'var(--red)' : p.team==='oc' ? 'var(--purple)' : 'var(--muted)';
+  const teamLabel = p.team==='oc' ? 'OC' : p.team.toUpperCase();
+
+  el('pmTitle').textContent=`PLAYER #${p.equipmentNumber} // ${p.team.toUpperCase()}`;
+  el('pmHealthBar').innerHTML = healthBarHtml(p);
+  const pmTeam = el('pmTeam');
+  pmTeam.textContent = `${teamLabel} ${p.manual?'(MANUAL)':''}`;
+  pmTeam.style.color = teamColor;
+  el('pmClass').textContent = p.typeClass ? t('class'+p.typeClass) : '—';
+  el('pmHealthStatus').textContent = localStatus;
+  el('pmDesignator').textContent = p.designator||'—';
+  el('pmTacticalId').textContent = p.tacticalIdentifier||'—';
+  el('pmTypeName').textContent = p.typeName||'—';
+  el('pmBite').textContent = `${p.biteLabel} ${biteIcon(p)}`;
+  el('pmWeapons').innerHTML = weaponsBoxHtml(p);
+  refreshHitHistory(p);
+}
+
+// Short date+time, e.g. "26-Mar-30 13:41" — local time, matches the
+// dashboard's other timestamp displays.
+function formatHitDateTime(ms){
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const d = new Date(ms);
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mmm = MONTHS[d.getMonth()];
+  const yy = String(d.getFullYear()).slice(-2);
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}-${mmm}-${yy} ${hh}:${mi}`;
+}
+
+// History rows: caused (this player was the originator_id) shown one way,
+// received (this player is the equipment_number hit) shown another —
+// green/red per .hit-caused/.hit-received CSS above. Newest first (API
+// already returns ORDER BY insert_time DESC, latest 30, Ready-result and
+// #0/#208-originator rows already excluded server-side).
+function hitRowHtml(row){
+  const dirClass = row.caused ? 'hit-caused' : 'hit-received';
+  const arrow = row.caused ? '➜' : '⤺';
+  const otherParty = row.caused ? row.equipmentNumber : row.originatorId;
+  const otherLabel = (otherParty===null || otherParty===undefined) ? 'Unknown' : ('#'+otherParty);
+  const state = row.vulnerabilityStateLabel || ('State '+row.vulnerabilityState);
+  const charge = row.originatorChargeShortName || '—';
+  const time = formatHitDateTime(row.insertTime);
+  return `
+    <div class="hit-row ${dirClass}">
+      <span class="hit-dir">${arrow}</span>
+      <span class="hit-player">${otherLabel}</span>
+      <span class="hit-result">${state}</span>
+      <span class="hit-charge">${charge}</span>
+      <span class="hit-time">${time}</span>
+    </div>`;
+}
+
+function historyBoxHtml(rows){
+  if(rows === null) return `<div class="weapon-row weapon-empty">Loading...</div>`;
+  if(!rows.length) return `<div class="weapon-row weapon-empty">No hit history</div>`;
+  return rows.map(hitRowHtml).join('');
+}
+
+// Bumped on every call so a stale response (e.g. modal switched to a
+// different player, or a later poll's fetch resolves first) never
+// overwrites a newer one.
+let hitHistoryFetchToken = 0;
+async function refreshHitHistory(p){
+  if(!currentId) return;
+  const token = ++hitHistoryFetchToken;
+  // Don't show "Loading..." immediately — most fetches resolve well
+  // under this delay, so showing it right away just causes a flash when
+  // switching between player cards quickly. Only show it if the fetch is
+  // still pending after 200ms.
+  const loadingTimer = setTimeout(() => {
+    if(token !== hitHistoryFetchToken) return;
+    if(!currentModalPlayer || currentModalPlayer.equipmentNumber !== p.equipmentNumber) return;
+    el('pmHistory').innerHTML = historyBoxHtml(null);
+  }, 200);
+  try{
+    const rows = await fetchJSON(API.hits(currentId, p.equipmentNumber));
+    clearTimeout(loadingTimer);
+    if(token !== hitHistoryFetchToken) return;
+    if(!currentModalPlayer || currentModalPlayer.equipmentNumber !== p.equipmentNumber) return;
+    el('pmHistory').innerHTML = historyBoxHtml(rows);
+  }catch(e){
+    clearTimeout(loadingTimer);
+    if(token !== hitHistoryFetchToken) return;
+    if(!currentModalPlayer || currentModalPlayer.equipmentNumber !== p.equipmentNumber) return;
+    el('pmHistory').innerHTML = `<div class="weapon-row weapon-empty">ERR ${e.message}</div>`;
+  }
+}
+
+// Collapsible [+]/[−] toggle for the HISTORY box. Defaults to collapsed
+// each time a player modal is (re)opened — see openPlayer() above.
+let historyCollapsed = true;
+function toggleHistoryCollapse(){
+  historyCollapsed = !historyCollapsed;
+  const body = el('pmHistoryBody');
+  const btn = el('pmHistoryToggleBtn');
+  if(body) body.style.display = historyCollapsed ? 'none' : '';
+  if(btn) btn.textContent = historyCollapsed ? '+' : '−';
+}
+
+function closePlayer(){ el('playerModalBg').classList.remove('open'); currentModalPlayer = null; }
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && el('playerModalBg').classList.contains('open')){
+    closePlayer();
+  }
+});
+
+// ============================================================================
+// Statistics panel — reads a stored, pre-computed result via GET (a plain
+// JSON-file read on the backend, zero DB load). The heavy historical
+// aggregation only ever runs server-side once, when STOP EXERCISE is
+// pressed — see routes/stats.js / services/statsAggregate.js. This panel
+// never triggers that computation on open/view, only Start/Stop do.
+// ============================================================================
+let statsActiveTab = 'overall';
+let statsPollTimer = null;
+
+function fmtMs(ms){
+  if (ms === null || ms === undefined) return '—';
+  const totalSec = Math.round(ms/1000);
+  const h = Math.floor(totalSec/3600), m = Math.floor((totalSec%3600)/60), s = totalSec%60;
+  return h>0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
+}
+function fmtDist(m){
+  if (m === null || m === undefined) return '—';
+  return m >= 1000 ? `${(m/1000).toFixed(2)} km` : `${m} m`;
+}
+function fmtPct(p){ return (p===null||p===undefined) ? '—' : `${p}%`; }
+
+async function openStatsPanel(){
+  if(!currentId){ alert('Select and confirm an exercise first.'); return; }
+  el('statsExId').textContent = `— Exercise ${currentId}`;
+  el('statsModalBg').classList.add('open');
+  await refreshStatsPanel();
+  if(statsPollTimer) clearInterval(statsPollTimer);
+  // Only polls the lightweight GET (recording status + last stored result)
+  // while the panel is open — never the heavy aggregation itself.
+  statsPollTimer = setInterval(refreshStatsPanel, 5000);
+}
+function closeStatsPanel(){
+  el('statsModalBg').classList.remove('open');
+  if(statsPollTimer){ clearInterval(statsPollTimer); statsPollTimer = null; }
+}
+
+async function refreshStatsPanel(){
+  if(!currentId) return;
+  try{
+    const data = await fetchJSON(API.statsGet(currentId));
+    renderRecordingControls(data);
+    renderStatsBody(data.lastResult);
+  }catch(e){
+    el('statsBody').innerHTML = `<div class="stats-empty">Error loading stats: ${e.message}</div>`;
+  }
+}
+
+function renderRecordingControls(data){
+  const statusEl = el('statsRecordStatus');
+  const startBtn = el('statsStartBtn');
+  const stopBtn = el('statsStopBtn');
+  if(data.recording){
+    const elapsed = Date.now() - data.startTime;
+    statusEl.textContent = `● RECORDING — ${fmtMs(elapsed)} elapsed (min 10m to save)`;
+    statusEl.className = 'stats-record-status live';
+    startBtn.style.display = 'none';
+    stopBtn.style.display = '';
+  } else {
+    statusEl.textContent = data.lastComputedAt
+      ? `Last recorded session: ${fmtMs(data.lastWindow.stop - data.lastWindow.start)} (computed ${new Date(data.lastComputedAt).toLocaleTimeString()})`
+      : 'Not recording — no session recorded yet.';
+    statusEl.className = 'stats-record-status';
+    startBtn.style.display = '';
+    stopBtn.style.display = 'none';
+  }
+}
+
+async function startRecording(){
+  try{
+    await fetch(API.statsStart(currentId), {method:'POST'});
+    await refreshStatsPanel();
+  }catch(e){ alert('Failed to start recording: '+e.message); }
+}
+async function stopRecording(){
+  el('statsStopBtn').disabled = true;
+  try{
+    const res = await fetch(API.statsStop(currentId), {method:'POST'});
+    const data = await res.json();
+    if(data.restarted){
+      alert(data.reason);
+    } else if(!data.ok){
+      alert('Failed to stop/compute stats: ' + (data.error||'unknown error'));
+    }
+    await refreshStatsPanel();
+  }catch(e){ alert('Failed to stop recording: '+e.message); }
+  finally{ el('statsStopBtn').disabled = false; }
+}
+
+function switchStatsTab(tab){
+  statsActiveTab = tab;
+  document.querySelectorAll('.stats-tab').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
+  refreshStatsPanel();
+}
+
+function renderStatsBody(result){
+  const body = el('statsBody');
+  if(!result){
+    body.innerHTML = `<div class="stats-empty">No recorded session yet for this exercise.<br>Press START EXERCISE, run for at least 10 minutes, then STOP EXERCISE to compute a report.</div>`;
+    return;
+  }
+  if(statsActiveTab === 'overall') body.innerHTML = renderOverallTab(result);
+  else if(statsActiveTab === 'team') body.innerHTML = renderTeamTab(result);
+  else body.innerHTML = renderIndividualTab(result);
+}
+
+function renderOverallTab(result){
+  const o = result.overall;
+  const winnerColor = o.winner==='blue' ? 'var(--blue)' : o.winner==='red' ? 'var(--red)' : 'var(--muted)';
+  let html = `
+    <div class="stats-grid-3">
+      <div class="stats-card"><h4>WINDOW DURATION</h4><div class="big">${fmtMs(o.windowDurationMs)}</div></div>
+      <div class="stats-card"><h4>PARTICIPANTS</h4><div class="big">${o.participantCount}</div></div>
+      <div class="stats-card"><h4>WINNER</h4><div class="big" style="color:${winnerColor}">${o.winner.toUpperCase()}</div></div>
+      <div class="stats-card"><h4>TOTAL CASUALTIES</h4><div class="big">${o.totalKilled}</div></div>
+      <div class="stats-card"><h4>TOTAL ROUNDS FIRED</h4><div class="big">${o.totalRoundsFired}</div></div>
+      <div class="stats-card"><h4>TOTAL DISTANCE</h4><div class="big">${fmtDist(o.totalDistanceMeters)}</div></div>
+      <div class="stats-card"><h4>FLEET BITE UPTIME</h4><div class="big">${fmtPct(o.fleetBiteUptimePct)}</div></div>
+      <div class="stats-card"><h4>FLEET GPS COVERAGE</h4><div class="big">${fmtPct(o.fleetGpsCoveragePct)}</div></div>
+    </div>
+    <h4 style="color:var(--muted);font-size:13px;letter-spacing:0.08em;margin:16px 0 6px">ATTRITION OVER TIME (cumulative killed)</h4>
+    <table class="stats-table" style="width:100%">
+      <tr><th>Elapsed</th><th>Blue Killed</th><th>Red Killed</th></tr>
+      ${result.attrition.map(a => `<tr><td>${fmtMs(a.t - o.windowStart)}</td><td style="color:var(--blue)">${a.blueKilled}</td><td style="color:var(--red)">${a.redKilled}</td></tr>`).join('')}
+    </table>
+  `;
+  return html;
+}
+
+function renderTeamTab(result){
+  const rows = ['blue','red','oc'].map(team => {
+    const teamStats = result.team[team];
+    if(!teamStats) return '';
+    const color = team==='blue' ? 'var(--blue)' : team==='red' ? 'var(--red)' : 'var(--purple)';
+    return `<tr>
+      <td style="color:${color};font-weight:600">${team.toUpperCase()}</td>
+      <td>${teamStats.total}</td>
+      <td>${teamStats.alive}</td>
+      <td>${teamStats.killed}</td>
+      <td>${teamStats.totalRoundsFired}</td>
+      <td>${fmtDist(teamStats.totalDistanceMeters)}</td>
+      <td>${fmtPct(teamStats.avgBiteUptimePct)}</td>
+      <td>${fmtMs(teamStats.firstCasualtyMs)}</td>
+    </tr>`;
+  }).join('');
+  return `
+    <table class="stats-table">
+      <tr><th>Team</th><th>Total</th><th>Alive</th><th>Killed</th><th>Rounds Fired</th><th>Distance</th><th>Avg BITE Uptime</th><th>First Casualty</th></tr>
+      ${rows}
+    </table>
+  `;
+}
+
+function renderIndividualTab(result){
+  const rows = result.individual
+    .sort((a,b) => (a.team||'').localeCompare(b.team||'') || a.equipmentNumber - b.equipmentNumber)
+    .map(p => {
+      const color = p.team==='blue' ? 'var(--blue)' : p.team==='red' ? 'var(--red)' : p.team==='oc' ? 'var(--purple)' : 'var(--muted)';
+      return `<tr>
+        <td style="color:${color};font-weight:600">#${p.equipmentNumber}</td>
+        <td style="color:${color}">${(p.team||'—').toUpperCase()}</td>
+        <td>${p.typeClass||'—'}</td>
+        <td>${p.designator||'—'}</td>
+        <td>${p.finalStatus||'—'}</td>
+        <td>${fmtMs(p.survivedMs)}</td>
+        <td>${p.timeOfDeath===null?'—':fmtMs(p.timeOfDeath-result.overall.windowStart)}</td>
+        <td>${p.damageEventCount}</td>
+        <td>${p.nearMissCount}</td>
+        <td>${fmtPct(p.biteUptimePct)}</td>
+        <td>${fmtPct(p.gpsCoveragePct)}</td>
+        <td>${fmtDist(p.distanceMeters)}</td>
+        <td>${p.roundsFiredTotal}</td>
+        <td>${p.resupplyCount}</td>
+      </tr>`;
+    }).join('');
+  return `
+    <div style="overflow-x:auto">
+    <table class="stats-table">
+      <tr>
+        <th>PAN</th><th>Team</th><th>Class</th><th>Designator</th><th>Final Status</th>
+        <th>Survived</th><th>Time of Death</th><th>Hits</th><th>Near Miss</th>
+        <th>BITE Uptime</th><th>GPS Coverage</th><th>Distance</th><th>Rounds Fired</th><th>Resupplies</th>
+      </tr>
+      ${rows}
+    </table>
+    </div>
+  `;
+}
+
+function colorFor(cls){
+  if(cls==='hp-green') return 'var(--green)';
+  if(cls==='hp-yellow') return 'var(--yellow)';
+  if(cls==='hp-orange') return 'var(--orange)';
+  if(cls==='hp-red') return 'var(--red)';
+  return 'var(--line)';
+}
+
+// -------------------------------------------------------------
+// ENHANCED PDF EXPORT: All Players Details (Red vs Blue)
+// -------------------------------------------------------------
+function exportWinnerPDF(){
+  if(!lastSummary){ alert('No telemetry data available for export'); return; }
+
+  if(!window.jspdf){
+    alert('jsPDF library not loaded. Please ensure internet access or local script availability.');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  const exSelect = el('exSelect');
+  const rawExTitle = exSelect.options[exSelect.selectedIndex]?.text || `Exercise ID: ${currentId}`;
+
+  function sanitizeForPdf(str){
+    if(!str) return '';
+    let s = str.replace(/—/g, '-').replace(/–/g, '-').replace(/◼/g, '').replace(/•/g, '-');
+    s = s.replace(/[^\x20-\x7E]/g, ' ');
+    s = s.replace(/\s+/g, ' ').trim();
+    return s;
+  }
+
+  const exTitle = sanitizeForPdf(rawExTitle);
+
+  function drawBackground(pdf){
+    const w = pdf.internal.pageSize.getWidth();
+    const h = pdf.internal.pageSize.getHeight();
+    pdf.setFillColor(33, 34, 44);
+    pdf.rect(0, 0, w, h, 'F');
+  }
+
+  drawBackground(doc);
+
+  doc.setFillColor(40, 42, 54);
+  doc.rect(10, 10, pageWidth - 20, 24, 'F');
+  doc.setDrawColor(189, 147, 249);
+  doc.setLineWidth(0.5);
+  doc.rect(10, 10, pageWidth - 20, 24, 'D');
+
+  doc.setFont('Helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.setTextColor(248, 248, 242);
+  doc.text(`EXERCISE REPORT // ${exTitle.toUpperCase()}`, 15, 20);
+
+  doc.setFont('Helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(98, 114, 164);
+  doc.text(`TIMESTAMP: ${new Date().toLocaleString()}  |  BLUE SURVIVORS: ${lastSummary.counts.blueAlive}/${lastSummary.counts.blueTotal}  |  RED SURVIVORS: ${lastSummary.counts.redAlive}/${lastSummary.counts.redTotal}`, 15, 28);
+
+  const headers = [['PAN ID', 'Team', 'Health / Status', 'Ammo', 'Designator', 'Tactical ID', 'Type Name', 'Party ID', 'BITE Cfg', 'Not In Ex']];
+
+  const formatRows = (players) => {
+    return (players || [])
+      .filter(p => {
+        if(p.biteOk === false) return false;
+        if(p.biteLabel && /error/i.test(p.biteLabel)) return false;
+        const biteCombined = `${p.biteLabel || ''} ${p.biteOk === null ? '' : (p.biteOk ? 'OK' : 'ERR')}`;
+        if(/ERR/i.test(biteCombined) && !/OK /i.test(biteCombined)) {
+          if(p.biteOk === false || (p.biteLabel && p.biteLabel.toLowerCase().includes('error'))) return false;
+        }
+        return true;
+      })
+      .map(p => {
+        const localStatus = sanitizeForPdf(t('status' + effectiveStatusKey(p)));
+        const teamStr = sanitizeForPdf(`${p.team.toUpperCase()} ${p.manual ? '(MANUAL)' : ''}`);
+        const hpStr = p.healthBars === null ? 'N/A' : `${p.healthBars}/4`;
+        const statusHp = sanitizeForPdf(`${hpStr} - ${localStatus} [${p.hpColorClass || ''}]`);
+
+        let ammoStr;
+        if(p.ammo === null || p.ammo === undefined) ammoStr = 'No Data';
+        else if(typeof p.ammo === 'number' && p.ammo < 0) ammoStr = 'NO AMMO';
+        else if(typeof p.ammo === 'string' && p.ammo.trim() === '-1') ammoStr = 'NO AMMO';
+        else ammoStr = String(p.ammo);
+
+        const biteOkStr = p.biteOk === null ? '' : (p.biteOk ? '' : 'ERR');
+        const biteStr = sanitizeForPdf(`${p.biteLabel || '-'} ${biteOkStr}`.trim());
+        const notInStr = p.notInExercise ? 'YES' : 'NO';
+
+        return [
+          `#${p.equipmentNumber}`,
+          teamStr,
+          statusHp,
+          ammoStr,
+          sanitizeForPdf(p.designator || '-'),
+          sanitizeForPdf(p.tacticalIdentifier || '-'),
+          sanitizeForPdf(p.typeName || '-'),
+          p.partyId === null ? '-' : String(p.partyId),
+          biteStr,
+          notInStr
+        ];
+      });
+  };
+
+  let startY = 40;
+
+  doc.setFont('Helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(139, 233, 253);
+  doc.text('BLUE FORCE REPORT', 10, startY);
+
+  let blueFirst = true;
+  doc.autoTable({
+    startY: startY + 4,
+    head: headers,
+    body: formatRows(lastSummary.blue),
+    theme: 'grid',
+    styles: {
+      fillColor: [33, 34, 44],
+      textColor: [248, 248, 242],
+      fontSize: 8,
+      lineColor: [68, 71, 90],
+      lineWidth: 0.2,
+      cellPadding: 2,
+    },
+    headStyles: {
+      fillColor: [40, 42, 54],
+      textColor: [139, 233, 253],
+      fontStyle: 'bold',
+    },
+    alternateRowStyles: {
+      fillColor: [43, 46, 60],
+    },
+    willDrawPage: (data) => {
+      if (!blueFirst) {
+        drawBackground(data.doc);
+      }
+      blueFirst = false;
+    }
+  });
+
+  startY = doc.lastAutoTable.finalY + 12;
+  if(startY > pageHeight - 30) {
+    doc.addPage();
+    drawBackground(doc);
+    startY = 20;
+  }
+
+  doc.setFont('Helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(255, 85, 85);
+  doc.text('RED FORCE REPORT', 10, startY);
+
+  let redFirst = true;
+  doc.autoTable({
+    startY: startY + 4,
+    head: headers,
+    body: formatRows(lastSummary.red),
+    theme: 'grid',
+    styles: {
+      fillColor: [33, 34, 44],
+      textColor: [248, 248, 242],
+      fontSize: 8,
+      lineColor: [68, 71, 90],
+      lineWidth: 0.2,
+      cellPadding: 2,
+    },
+    headStyles: {
+      fillColor: [40, 42, 54],
+      textColor: [255, 85, 85],
+      fontStyle: 'bold',
+    },
+    alternateRowStyles: {
+      fillColor: [43, 46, 60],
+    },
+    willDrawPage: (data) => {
+      if (!redFirst) {
+        drawBackground(data.doc);
+      }
+      redFirst = false;
+    }
+  });
+
+  doc.save(`Exercise-Report-${currentId || 'ex'}-${Date.now()}.pdf`);
+}
+
+el('pdfBtn').onclick = exportWinnerPDF;
+
+async function fastRepull(){
+  el('resetBtn').textContent='⟳ REPULLING...';
+  try{
+    await fetch(API.dbRefresh,{method:'POST'});
+    await fetch(API.testConn,{method:'POST'});
+    await fetchJSON(API.serviceReset,{method:'POST'}).catch(()=>{});
+    await fetchSummary();
+    await loadSys();
+  }catch(e){ console.error(e) }
+  el('resetBtn').textContent = t('repull');
+}
+el('resetBtn').onclick=fastRepull;
+
+async function loadSys(){
+  try{
+    const s=await fetchJSON(API.sys);
+    el('cpu').textContent=s.cpuPct+'%';
+    el('mem').textContent=s.memPct+'%';
+    const db=await fetchJSON(API.db);
+    const badge=el('dbBadge');
+    badge.textContent=`DB: ${db.connected?'ONLINE':'OFFLINE'}`;
+    badge.className='badge db '+(db.connected?'ok':'bad');
+  }catch{}
+}
+function startSys(){ loadSys(); sysTimer=setInterval(loadSys, 5000); }
+
+function renderChips(){
+  const c = el('chips');
+  c.innerHTML = '';
+  const currentChips = t('aiChips') || [];
+  currentChips.forEach(q => {
+    const b = document.createElement('div');
+    b.className = 'chip';
+    b.textContent = q;
+    b.onclick = () => { el('aiInput').value = q; sendAI(); };
+    c.appendChild(b);
+  });
+}
+
+function toggleAI(open){
+  const p=el('aiPanel');
+  const willOpen = open===undefined ? !p.classList.contains('open') : !!open;
+  if(willOpen){
+    positionAiPanel();
+    p.classList.add('open');
+  } else {
+    p.classList.remove('open');
+  }
+}
+
+/* ---- Floating AI icon: drag to move, click (no drag) to open chat ---- */
+(function initAiFab(){
+  const fab = el('aiFab');
+  const FAB_SIZE = 72;
+  const EDGE_MARGIN = 20;
+
+  function clamp(x, y){
+    const maxX = window.innerWidth - FAB_SIZE - 8;
+    const maxY = window.innerHeight - FAB_SIZE - 8;
+    return { x: Math.min(Math.max(8, x), Math.max(8, maxX)), y: Math.min(Math.max(8, y), Math.max(8, maxY)) };
+  }
+
+  function loadPos(){
+    try{
+      const saved = JSON.parse(localStorage.getItem('aiFabPos') || 'null');
+      if(saved && typeof saved.x === 'number' && typeof saved.y === 'number') return saved;
+    }catch{}
+    return { x: window.innerWidth - FAB_SIZE - EDGE_MARGIN, y: window.innerHeight - FAB_SIZE - EDGE_MARGIN };
+  }
+
+  function setPos(x, y){
+    const c = clamp(x, y);
+    fab.style.left = c.x + 'px';
+    fab.style.top = c.y + 'px';
+    return c;
+  }
+
+  let pos = setPos(loadPos().x, loadPos().y);
+
+  let dragging = false, moved = false, startMouseX = 0, startMouseY = 0, startX = 0, startY = 0;
+
+  fab.addEventListener('mousedown', (e) => {
+    dragging = true; moved = false;
+    startMouseX = e.clientX; startMouseY = e.clientY;
+    const rect = fab.getBoundingClientRect();
+    startX = rect.left; startY = rect.top;
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if(!dragging) return;
+    const dx = e.clientX - startMouseX;
+    const dy = e.clientY - startMouseY;
+    if(Math.abs(dx) > 4 || Math.abs(dy) > 4){
+      if(!moved){ moved = true; fab.classList.add('dragging'); }
+    }
+    if(moved){
+      pos = setPos(startX + dx, startY + dy);
+      if(el('aiPanel').classList.contains('open')) positionAiPanel();
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if(!dragging) return;
+    dragging = false;
+    fab.classList.remove('dragging');
+    if(moved){
+      localStorage.setItem('aiFabPos', JSON.stringify(pos));
+    } else {
+      toggleAI();
+    }
+    moved = false;
+  });
+
+  window.addEventListener('resize', () => { pos = setPos(pos.x, pos.y); });
+})();
+
+function positionAiPanel(){
+  const fab = el('aiFab');
+  const panel = el('aiPanel');
+  const rect = fab.getBoundingClientRect();
+  const panelW = panel.offsetWidth || 380;
+  const panelH = panel.offsetHeight || 540;
+  const margin = 14;
+
+  let left = rect.left + rect.width / 2 - panelW / 2;
+  left = Math.min(Math.max(8, left), window.innerWidth - panelW - 8);
+
+  let top = rect.top - panelH - margin;
+  if(top < 8){
+    top = rect.bottom + margin;
+    top = Math.min(top, window.innerHeight - panelH - 8);
+  }
+
+  panel.style.left = left + 'px';
+  panel.style.top = top + 'px';
+}
+
+function addMsg(text, who){
+  const m=document.createElement('div'); m.className='msg '+who; m.innerHTML=text; el('aiMsgs').appendChild(m); el('aiMsgs').scrollTop=el('aiMsgs').scrollHeight;
+}
+
+async function sendAI(){
+  const input=el('aiInput'); const q=input.value.trim(); if(!q) return;
+
+  if(aiAbortController){
+    aiAbortController.abort();
+  }
+
+  addMsg(q,'user'); input.value='';
+
+  aiAbortController = new AbortController();
+  const stopBtn = el('aiStopText');
+  if(stopBtn) stopBtn.style.display = 'inline-block';
+
+  const payloadContext = lastSummary ? lastSummary : { counts: {} };
+
+  let finalQuery = q;
+  if (currentLang === 'ar') {
+     finalQuery += " (Always reply to this prompt in clear Arabic)";
+  }
+
+  try {
+    const res = await fetch(API.llm, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: finalQuery, context: payloadContext }),
+      signal: aiAbortController.signal
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      addMsg(data.reply || "No response received from AI.", 'bot');
+    } else {
+      addMsg("Server Error: HTTP " + res.status, 'bot');
+    }
+  } catch(err) {
+    if(err.name === 'AbortError'){
+      // Canceled
+    } else {
+      addMsg("Connection to AI backend failed.", 'bot');
+    }
+  } finally {
+    aiAbortController = null;
+    if(stopBtn) stopBtn.style.display = 'none';
+  }
+}
+el('aiSendText').onclick = sendAI;
+
+function stopAI(){
+  if(aiAbortController){
+    aiAbortController.abort();
+    aiAbortController = null;
+    addMsg("<span style='color:var(--red)'>⚠️ The user stopped the process.</span>", 'bot');
+    const stopBtn = el('aiStopText');
+    if(stopBtn) stopBtn.style.display = 'none';
+  }
+}
+
+// Init
+el('exSelect').addEventListener('change',e=>{
+  // Selecting an option (including rapid up/down-arrow navigation while the
+  // dropdown is focused) NEVER triggers a fetch here — it only tracks the
+  // pending selection and re-enables CONFIRM if it points at a different
+  // exercise than what's currently loaded. Actually loading/displaying data
+  // only happens when CONFIRM is pressed (see handleConfirmClick).
+  const val = e.target.value;
+  const btn = el('exLoadBtn');
+  if(btn) btn.disabled = (val === currentId && val !== '');
+});
+// NOTE: exercises are no longer preloaded on page open — the dropdown
+// stays empty until the user clicks the CONFIRM button (loadExercises()),
+// UNLESS a previously-confirmed exercise was persisted (see below), in
+// which case a refresh resumes it automatically instead of resetting.
+startSys();
+renderChips();
+
+// Refresh-resume: if the user had already confirmed an exercise before
+// reloading the page, silently repopulate the dropdown and resume polling
+// it immediately — a refresh behaves like a fast repull, not a reset back
+// to the empty/unconfirmed state.
+(function resumeLastExercise(){
+  const savedId = getPersistedExercise();
+  if(!savedId) return;
+  loadExercises().then(()=>{
+    const sel = el('exSelect');
+    const optionExists = Array.from(sel.options).some(o => o.value === savedId);
+    if(!optionExists) return; // exercise no longer listed — fall back to normal empty state
+    sel.value = savedId;
+    currentId = savedId;
+    el('exId').textContent = currentId;
+    const btn = el('exLoadBtn');
+    if(btn) btn.disabled = true;
+    startPolling();
+  });
+})();
+</script>
+</body>
+</html>
