@@ -1,5 +1,5 @@
 # WarRoom Tactical Scoring System
-comprehensive, real-time scoring and telemetry dashboard designed for Red vs. Blue military training exercises. It provides high-level aggregation of unit statistics alongside granular, player-level data, all supported by an integrated AI Retrieval-Augmented Generation (RAG) assistant to answer complex battlefield queries on the fly.
+comprehensive, real-time scoring and telemetry dashboard designed for Red vs. Blue PFS scoring. It provides high-level aggregation of unit statistics alongside granular, player-level data, all supported by an integrated AI Retrieval-Augmented Generation (RAG) assistant to answer complex battlefield queries on the fly.
 
 ### 🔴 Red vs. 🔵 Blue Scoring
 The core of the system tracks live combat metrics between two opposing factions. It provides a real-time overview to score the exercise based on:
